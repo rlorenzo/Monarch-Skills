@@ -10,20 +10,50 @@ repo pins to an exact commit.
 
 ## Install
 
-As a plugin, which is what makes the skills available everywhere rather than only inside
-this directory:
+Clone it and work inside it. That is the recommended setup:
+
+```bash
+git clone git@github.com:rlorenzo/Monarch-Skills.git
+cd Monarch-Skills
+claude
+```
+
+Claude Code picks up `.mcp.json` and prompts once to approve the server, and
+`.claude/skills` symlinks the skills into place. Everything stays scoped to this
+directory: the skills load here, the Monarch connection lives here, and neither follows
+you into unrelated work.
+
+That scoping is the point. These skills are useless outside a Monarch session and they
+cost tokens in every session that loads them (~600 always-on for the five), so installing
+them user-wide taxes every project you open in exchange for nothing. Editing a `SKILL.md`
+here also takes effect immediately, which an install does not.
+
+<details>
+<summary>Installing as a plugin instead</summary>
+
+Use this to get the skills in a *different* project without cloning this one — a personal
+finance notes repo, say. Scope it to that project rather than to your user:
 
 ```
 /plugin marketplace add rlorenzo/Monarch-Skills
 /plugin install monarch-skills@monarch-skills
 ```
 
-Installed skills are namespaced by plugin, so they appear as `/monarch-skills:monarch-doctor`
-and so on. The plugin brings the pinned MCP server with it.
+Or from a shell, where the scope is explicit:
 
-To work on the repo itself, clone it and open it with Claude Code. `.mcp.json` is
-project-scoped, so Claude Code picks it up and prompts once for approval, and
-`.claude/skills` symlinks the skills into place for that session.
+```bash
+claude plugin marketplace add rlorenzo/Monarch-Skills
+claude plugin install monarch-skills@monarch-skills -s project
+```
+
+Installed skills are namespaced, so they appear as `/monarch-skills:monarch-doctor`. The
+plugin brings the pinned MCP server with it, registered as `monarch-money`.
+
+The slash-command form defaults to **user** scope, which is almost never what you want
+here. A plugin install also serves skills from a cached clone, so local edits to this repo
+do not show up in it.
+
+</details>
 
 ## Authenticate
 
