@@ -49,6 +49,13 @@ connection has been dead.
 - **Zero balances are ambiguous.** A $0 balance on a broken connection may be a real zero
   or a failed read. Say which you cannot distinguish rather than reporting a $0 balance
   as fact.
+- **Never recommend deleting an account to silence a warning.** Deleting an account in
+  Monarch deletes its transactions and balance history with it, which rewrites past net
+  worth and category totals. A long-dead connection on a closed account is usually holding
+  real history — check with `get_transactions` before suggesting anything destructive, and
+  prefer marking the account closed, or raising `stale_after_days`, over removing it.
+  Removing an institution connection may also offer to delete its accounts; say that the
+  user should read that dialog rather than assuming it keeps them.
 - Different providers (`PLAID`, `FINICITY`, `MX`, and others) break differently and
   reconnect differently. Name the provider — it tells the user what the flow will look like.
 
@@ -73,7 +80,8 @@ whether the user's data can be trusted right now.
    because of it.
 2. **Worth a look** — stale but plausibly normal cadence, or ambiguous.
 3. **Working as intended** — manual, intentionally sync-disabled, closed. One line total,
-   not a list, unless something looks misfiled.
+   not a list, unless something looks misfiled. A closed account with a very stale
+   connection belongs here, not in "fix now": there is nothing to reconnect.
 
 End with the concrete next action per institution, in impact order. If everything is
 healthy, say that in one line and stop.
