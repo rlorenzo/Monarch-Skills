@@ -10,5 +10,6 @@
       "source": "./",
       "description": "Read-only Monarch Money analysis skills plus a pinned, security-reviewed MCP server."
     }
-  ]
+  ],
+  "description": "Read-only Monarch Money analysis skills with a pinned, security-reviewed MCP server."
 }

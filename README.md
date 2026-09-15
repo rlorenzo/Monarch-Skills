@@ -79,6 +79,19 @@ committed default, and keep client-side approval prompts on mutating tools.
 three together and re-run the security review when you do. Upstream publishes no tags or
 releases, so the sha is pinning a snapshot of a moving branch.
 
+## Lint
+
+```bash
+./scripts/lint
+```
+
+Runs `claude plugin validate` on the manifests and skills when the CLI is available,
+then the checks it cannot know about: every skill's frontmatter `name` matches its
+directory, no skill references a tool that read-only mode withholds (those tools are
+never registered, so calling one fails at runtime rather than being refused), and
+`.mcp.json` still pins a full commit sha with an `mcp` upper bound, which `scripts/login`
+depends on.
+
 ## Security review
 
 `609d790` was reviewed before pinning. Verdict: **safe with caveats**. Full notes in

@@ -1,0 +1,103 @@
+#!/usr/bin/env python3
+"""Lint the plugin manifests and skills.
+
+Runs Claude Code's own validator when available, then the checks it cannot know
+about: that skills only reference tools this repo's read-only config actually
+exposes, and that the MCP pin scripts/login depends on is still a real commit.
+"""
+
+import json
+import pathlib
+import re
+import shutil
+import subprocess
+import sys
+
+ROOT = pathlib.Path(__file__).parent.parent
+
+# Withheld when MONARCH_MCP_READ_ONLY is set, which .mcp.json defaults to on.
+# A skill that tells Claude to call one of these fails at runtime: the tool is
+# never registered, so it is not merely refused, it does not exist.
+MUTATING_TOOLS = {
+    "create_transaction", "update_transaction", "delete_transaction",
+    "categorize_transaction", "update_transaction_notes",
+    "mark_transaction_reviewed", "bulk_categorize_transactions",
+    "split_transaction", "upload_account_balance_history",
+    "set_transaction_tags", "add_transaction_tag", "create_transaction_tag",
+    "create_transaction_rule", "update_transaction_rule",
+    "delete_transaction_rule", "reorder_transaction_rule",
+    "create_transaction_category", "update_category", "set_budget_amount",
+    "update_savings_goal", "set_goal_contribution", "update_merchant",
+    "review_recurring_stream", "monarch_login", "monarch_login_with_token",
+    "monarch_logout", "update_account", "refresh_accounts",
+}
+
+errors = []
+
+
+def check_skills():
+    skills = sorted((ROOT / "skills").glob("*/SKILL.md"))
+    if not skills:
+        errors.append("no skills found under skills/")
+    for skill in skills:
+        rel = skill.relative_to(ROOT)
+        text = skill.read_text()
+        front = re.match(r"^---\n(.*?)\n---\n", text, re.S)
+        if not front:
+            errors.append(f"{rel}: missing YAML frontmatter")
+            continue
+        fields = dict(
+            re.findall(r"^(name|description):\s*(.+)$", front.group(1), re.M)
+        )
+        if fields.get("name") != skill.parent.name:
+            errors.append(
+                f"{rel}: frontmatter name {fields.get('name')!r} "
+                f"!= directory {skill.parent.name!r}"
+            )
+        if not fields.get("description"):
+            errors.append(f"{rel}: no description, so it will never be matched")
+        body = text[front.end():]
+        for tool in sorted(MUTATING_TOOLS):
+            # Skip prose that names a tool only to say it is unavailable.
+            for line in body.splitlines():
+                if tool in line and "withhold" not in line and "cannot" not in line:
+                    errors.append(f"{rel}: references withheld write tool {tool}")
+                    break
+    return len(skills)
+
+
+def check_pin():
+    mcp = json.loads((ROOT / ".mcp.json").read_text())
+    args = mcp["mcpServers"]["monarch-money"]["args"]
+    source = args[args.index("--from") + 1]
+    sha = source.rpartition("@")[2]
+    if not re.fullmatch(r"[0-9a-f]{40}", sha):
+        errors.append(f".mcp.json: server is not pinned to a full commit sha ({sha!r})")
+    if not any(a.startswith("mcp[cli]") for a in args):
+        errors.append(".mcp.json: no upper bound on mcp; a new major will break the pin")
+
+
+def run_validator():
+    if not shutil.which("claude"):
+        print("claude CLI not found, skipping manifest validation")
+        return
+    for target in (".", "skills"):
+        result = subprocess.run(
+            ["claude", "plugin", "validate", target],
+            cwd=ROOT, capture_output=True, text=True,
+        )
+        print(result.stdout.strip() or result.stderr.strip())
+        if result.returncode != 0:
+            errors.append(f"claude plugin validate {target} failed")
+
+
+run_validator()
+count = check_skills()
+check_pin()
+
+if errors:
+    print(f"\n{len(errors)} problem(s):")
+    for e in errors:
+        print(f"  - {e}")
+    sys.exit(1)
+print(f"\nok: {count} skills, manifests and pin look right")
