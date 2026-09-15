@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "monarch-money": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "--with", "mcp[cli]<3",
+        "--with", "monarchmoneycommunity==1.5.2",
+        "--from", "git+https://github.com/robcerda/monarch-mcp-server@609d790bfafc6957ee824caa77b3be129c72ea4a",
+        "monarch-mcp-server"
+      ],
+      "env": {
+        "MONARCH_MCP_READ_ONLY": "${MONARCH_MCP_READ_ONLY:-1}"
+      }
+    }
+  }
+}
