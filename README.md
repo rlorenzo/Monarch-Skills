@@ -90,7 +90,8 @@ then the checks it cannot know about: every skill's frontmatter `name` matches i
 directory, no skill references a tool that read-only mode withholds (those tools are
 never registered, so calling one fails at runtime rather than being refused), and
 `.mcp.json` still pins a full commit sha with an `mcp` upper bound, which `scripts/login`
-depends on.
+depends on, every skill carries a license, and no skill's `allowed-tools` pre-approves a
+write tool.
 
 ## Security review
 
@@ -127,6 +128,11 @@ a transaction, change a budget, or cancel anything.
 | `budget-analyzer` | 6-12 months of budget vs actual: chronically over, chronically under, unbudgeted spending, and recommended amounts. |
 | `cashflow-analyzer` | Spending trends plus anomalies worth investigating — spikes, duplicates, silent price hikes, possible fraud. |
 | `subscription-manager` | Every recurring charge, normalized to monthly and annual cost, with cut and downgrade candidates. |
+
+Each skill declares `allowed-tools` listing only the read tools it uses, so running one
+does not stop for a permission prompt per call. Note that `allowed-tools` pre-approves
+rather than restricts — it is an ergonomic setting, not a safety control, which is why
+the lists name read tools explicitly instead of wildcarding the server.
 
 Each skill encodes the quirks of this MCP server's tools, which is most of their value.
 For instance `uncategorized_only` on `get_transactions_needing_review` filters one fetched

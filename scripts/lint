@@ -47,8 +47,19 @@ def check_skills():
             errors.append(f"{rel}: missing YAML frontmatter")
             continue
         fields = dict(
-            re.findall(r"^(name|description):\s*(.+)$", front.group(1), re.M)
+            re.findall(
+                r"^(name|description|license|allowed-tools):\s*(.+)$",
+                front.group(1), re.M,
+            )
         )
+        if not fields.get("license"):
+            errors.append(f"{rel}: no license in frontmatter")
+        # allowed-tools pre-approves, it does not restrict. Listing a write tool
+        # here would silently skip the prompt for a mutation if someone runs
+        # with MONARCH_MCP_READ_ONLY off.
+        for tool in fields.get("allowed-tools", "").replace(",", " ").split():
+            if tool.rpartition("__")[2] in MUTATING_TOOLS:
+                errors.append(f"{rel}: allowed-tools pre-approves write tool {tool}")
         if fields.get("name") != skill.parent.name:
             errors.append(
                 f"{rel}: frontmatter name {fields.get('name')!r} "

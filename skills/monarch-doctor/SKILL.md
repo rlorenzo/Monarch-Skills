@@ -1,6 +1,8 @@
 ---
 name: monarch-doctor
 description: Health check for a Monarch Money account — institution connections needing re-authentication, disconnected or stale accounts, sync-disabled accounts, and the data gaps they cause. Use when the user asks whether Monarch data is current, why balances or transactions look wrong or missing, or wants a general check-up of their account connections.
+license: MIT
+allowed-tools: mcp__monarch-money__get_account_sync_health mcp__monarch-money__get_accounts mcp__monarch-money__get_account_balance_history mcp__monarch-money__get_transactions
 ---
 
 # Monarch doctor
