@@ -1,0 +1,14 @@
+{
+  "name": "monarch-skills",
+  "owner": {
+    "name": "Rex Lorenzo",
+    "url": "https://github.com/rlorenzo"
+  },
+  "plugins": [
+    {
+      "name": "monarch-skills",
+      "source": "./",
+      "description": "Read-only Monarch Money analysis skills plus a pinned, security-reviewed MCP server."
+    }
+  ]
+}

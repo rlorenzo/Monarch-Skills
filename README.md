@@ -10,8 +10,20 @@ repo pins to an exact commit.
 
 ## Install
 
-Clone the repo and open it with Claude Code. `.mcp.json` is project-scoped, so Claude Code
-picks it up and prompts once for approval.
+As a plugin, which is what makes the skills available everywhere rather than only inside
+this directory:
+
+```
+/plugin marketplace add rlorenzo/Monarch-Skills
+/plugin install monarch-skills@monarch-skills
+```
+
+Installed skills are namespaced by plugin, so they appear as `/monarch-skills:monarch-doctor`
+and so on. The plugin brings the pinned MCP server with it.
+
+To work on the repo itself, clone it and open it with Claude Code. `.mcp.json` is
+project-scoped, so Claude Code picks it up and prompts once for approval, and
+`.claude/skills` symlinks the skills into place for that session.
 
 ## Authenticate
 
