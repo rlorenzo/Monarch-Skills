@@ -154,10 +154,10 @@ a transaction, change a budget, or cancel anything.
 | Skill | What it does |
 |---|---|
 | `monarch-doctor` | Connections needing re-auth, stale or disconnected accounts, and what data they invalidate. Run this first — every other analysis is wrong in proportion to how long a connection has been dead. |
-| `categorization-review` | Uncategorized transactions, likely miscategorizations, and auto-categorization rules to propose. |
-| `budget-analyzer` | 6-12 months of budget vs actual: chronically over, chronically under, unbudgeted spending, and recommended amounts. |
-| `cashflow-analyzer` | Spending trends plus anomalies worth investigating — spikes, duplicates, silent price hikes, possible fraud. |
-| `subscription-manager` | Every recurring charge, normalized to monthly and annual cost, with cut and downgrade candidates. |
+| `monarch-categorization-review` | Uncategorized transactions, likely miscategorizations, and auto-categorization rules to propose. |
+| `monarch-budget-analyzer` | 6-12 months of budget vs actual: chronically over, chronically under, unbudgeted spending, and recommended amounts. |
+| `monarch-cashflow-analyzer` | Spending trends plus anomalies worth investigating — spikes, duplicates, silent price hikes, possible fraud. |
+| `monarch-subscription-manager` | Every recurring charge, normalized to monthly and annual cost, with cut and downgrade candidates. |
 
 Each skill declares `allowed-tools` listing only the read tools it uses, so running one
 does not stop for a permission prompt per call. Note that `allowed-tools` pre-approves

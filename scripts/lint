@@ -52,6 +52,11 @@ def check_skills():
                 front.group(1), re.M,
             )
         )
+        if not skill.parent.name.startswith("monarch-"):
+            errors.append(
+                f"{rel}: skill directories are prefixed monarch- so they group "
+                f"together in the skills list"
+            )
         if not fields.get("license"):
             errors.append(f"{rel}: no license in frontmatter")
         # allowed-tools pre-approves, it does not restrict. Listing a write tool

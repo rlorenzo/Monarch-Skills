@@ -1,5 +1,5 @@
 ---
-name: categorization-review
+name: monarch-categorization-review
 description: Review how recent Monarch Money transactions are categorized. Finds uncategorized transactions, flags likely miscategorizations, and proposes auto-categorization rules to stop them recurring. Use when the user asks to review categories, clean up categorization, find uncategorized or miscategorized transactions, or asks why spending in a category looks wrong.
 license: MIT
 allowed-tools: mcp__monarch-money__get_transaction_categories mcp__monarch-money__get_transaction_rules mcp__monarch-money__get_transactions mcp__monarch-money__get_transactions_needing_review mcp__monarch-money__get_transaction_details mcp__monarch-money__search_transactions
