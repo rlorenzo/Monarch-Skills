@@ -1,0 +1,20 @@
+name: lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      # scripts/lint skips manifest validation when the CLI is absent, so
+      # install it to get the full check rather than only the local ones.
+      # `claude plugin validate` reads manifests off disk and needs no auth.
+      - run: npm install -g @anthropic-ai/claude-code
+      - run: ./scripts/lint
