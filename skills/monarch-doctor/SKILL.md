@@ -23,7 +23,10 @@ connection has been dead.
    Returns a `needs_attention` list plus the full connection list. Empty `needs_attention`
    means every institution is syncing. Raise `stale_after_days` for accounts that
    legitimately update slowly (some 401k and mortgage feeds are weekly or monthly).
-2. `get_accounts` — per-account `sync.state` (`ok`, `needs_reauth`, `disconnected`,
+2. `get_accounts` — needed because `get_account_sync_health` does not report whether an
+   account is active or hidden, which is what tells a broken connection apart from a
+   closed one. Join the two by account name, and watch for near-duplicate names across
+   people or accounts. Gives per-account `sync.state` (`ok`, `needs_reauth`, `disconnected`,
    `sync_disabled`, `manual`), `needs_reauth`, `disconnected_at`, `sync_disabled`,
    `data_provider`, `last_updated_at`, `is_active`, `is_hidden`, `balance`.
 3. For an account whose balance looks suspicious, `get_account_balance_history(account_id=...)`
@@ -41,9 +44,15 @@ connection has been dead.
   each needing its own reconnection. Collapsing by name would under-report the work.
 - **`sync.state: "manual"` is not broken.** Manual accounts never sync by design. So do
   accounts with `sync_disabled: true` that the user turned off deliberately.
-- **Inactive and hidden accounts are usually intentional.** `is_active: false` or
-  `is_hidden: true` with an old `last_updated_at` is normally a closed account, not an
-  outage. Mention them separately and briefly, if at all.
+- **Exclude closed accounts from the action lists.** `is_active: false`, or
+  `is_hidden: true` with an old `last_updated_at`, means a closed or abandoned account,
+  and there is nothing to reconnect. Drop a connection from "fix now" when *every* account
+  under it is closed — but only then. A connection can cover a mix, and a live account
+  sitting behind a dead link is the whole point of this check.
+  Do not drop them silently: end the report with one line saying how many closed accounts
+  were excluded, so a misfiled one is still visible. Monarch has no explicit closed flag
+  here, so this is inferred from `is_active` and `is_hidden` — say so when it is the only
+  reason you set something aside.
 - **A recent `last_updated_at` with `needs_reauth: true` still means broken.** The
   timestamp records the last attempt, not the last successful import. Trust the state.
 - **Zero balances are ambiguous.** A $0 balance on a broken connection may be a real zero
