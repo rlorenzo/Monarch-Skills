@@ -92,7 +92,22 @@ actual API call, is a third-party fork and is the largest unaudited surface.
 
 ## Skills
 
-None yet.
+All read-only: they report findings you act on in Monarch. None of them can recategorize
+a transaction, change a budget, or cancel anything.
+
+| Skill | What it does |
+|---|---|
+| `monarch-doctor` | Connections needing re-auth, stale or disconnected accounts, and what data they invalidate. Run this first — every other analysis is wrong in proportion to how long a connection has been dead. |
+| `categorization-review` | Uncategorized transactions, likely miscategorizations, and auto-categorization rules to propose. |
+| `budget-analyzer` | 6-12 months of budget vs actual: chronically over, chronically under, unbudgeted spending, and recommended amounts. |
+| `cashflow-analyzer` | Spending trends plus anomalies worth investigating — spikes, duplicates, silent price hikes, possible fraud. |
+| `subscription-manager` | Every recurring charge, normalized to monthly and annual cost, with cut and downgrade candidates. |
+
+Each skill encodes the quirks of this MCP server's tools, which is most of their value.
+For instance `uncategorized_only` on `get_transactions_needing_review` filters one fetched
+page locally, so it reports `count: 0, truncated: true` on an account that has plenty of
+uncategorized transactions; `get_budgets`'s `remaining` is rollover-inflated and is not
+`planned - actual`; and `get_transactions` errors unless given both dates.
 
 ## License
 
