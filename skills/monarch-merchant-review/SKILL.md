@@ -68,7 +68,12 @@ Discard:
 - **Statement lines that are not merchants.** Transfers, ACH deposits, ATM withdrawals,
   autopay and payment lines, dividends and reinvestments, buy/sell lines, and
   installment counters like `Monthly Installments (12 of 24)`. These collide constantly
-  on capitalization alone and merging them changes nothing.
+  on capitalization alone and merging them changes nothing. Match the keyword anywhere
+  in the name, not just at the start: a bank label like `eDeposit` carries a one-letter
+  prefix and slips a start-anchored pattern, and it can rank first by dollars while
+  being no merchant at all. The surer tell is the category spread. A real merchant sits
+  in one or two categories, while a deposit or transfer label scatters across unrelated
+  ones, so check the categories of any large group before trusting its name.
 - **Groups whose transactions all sit in transfer-ish categories** (`Transfer`,
   `Credit Card Payment`, `Balance Adjustments`, `Buy`, `Sell`, `Investments`).
 - **Store-number variants**, unless the user asks for them. A name carrying a branch
@@ -76,21 +81,32 @@ Discard:
   records is a bigger decision than fixing a spelling, and some people want the
   locations kept apart.
 
-Keep a group when the names are plainly one business and at least one variant has enough
-transactions to move a total. Pick the canonical name: the spelling with the most
-transactions, preferring the one that is properly capitalized and carries no store
-number or provider prefix.
+Keep a group when the names are plainly one business and at least one variant moves a
+total, judged in dollars rather than transaction count.
+
+Pick the canonical name by **which spelling is still arriving**, not by which has the
+most transactions. Providers rename merchants, so the bulk of the history often sits
+under a name the bank stopped sending years ago; merging into that dead spelling leaves
+every future charge to split off again. Compare the latest date per variant, and only
+fall back to transaction count when they are still both in use. Among equals, prefer the
+properly capitalized spelling with no store number or provider prefix.
+
+State the last-seen date for each variant in the report. It is what justifies the
+canonical choice when it contradicts the counts, and it also marks the groups where both
+spellings are dormant, which are worth merging only for tidier history.
 
 Flag separately, because it is the case with a real cost: a split where more than one
 variant has a recurring stream. Cross-check against `get_recurring_transactions`.
 
 ## Report
 
-Lead with the shape of it: transactions scanned, distinct merchant names, how many
-groups survived filtering, and how many transactions they cover. Then one table, ordered
-by total transactions descending, which is the order in which merging changes reporting:
+Lead with the shape of it: transactions scanned, the date range they cover, distinct
+merchant names, how many groups survived filtering, and how many transactions they
+cover. Then one table, ordered by total dollars descending. Dollars, not transaction
+count, is what decides whether a merge changes anything a reader cares about: a
+41-transaction group worth $776 belongs below a 25-transaction one worth $8,690.
 
-| Canonical | Variants (count) | Transactions | Recurring? |
+| Canonical | Variants (count, last seen) | Transactions | Total | Recurring? |
 
 Name the noise you filtered out in one line, with its count, so the user can ask for it
 if they disagree with the cut. Do not paste the unfiltered list.
