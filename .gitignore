@@ -1,2 +1,6 @@
 .DS_Store
 __pycache__/
+
+# Code-review loop artifacts, regenerated on every run
+agent-code-review.md
+agent-review-summary.md
