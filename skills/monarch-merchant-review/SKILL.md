@@ -120,7 +120,14 @@ Only when the user asks, and only for groups they name or confirm. Merging is a 
 so it needs `MONARCH_MCP_READ_ONLY=0`. If the tools below are absent, that is why.
 Say so and stop rather than working around it.
 
-There is no merge endpoint. Reassign each transaction to the canonical name:
+There is no merge endpoint, and `update_merchant` is not a shortcut to one: renaming a
+merchant to a name already in use fails with `A merchant with this name already exists`,
+so the duplicate cannot be folded in wholesale. Reassignment is per transaction, which
+means a group costs one call per transaction and a long-running split can cost hundreds.
+Count them first and tell the user the number before starting, because that is the real
+price of the merge and it is theirs to accept.
+
+Reassign each transaction to the canonical name:
 
 `update_transaction(transaction_id=..., merchant_name="<canonical>")`
 

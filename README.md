@@ -177,6 +177,12 @@ all it can do, and you take the findings to Monarch yourself. With writes enable
 `## Apply` section at the end of a skill can make the fixes instead, but only the ones
 you ask for, and every call still stops for approval.
 
+Three skills have no `## Apply` section, because their findings are not things this API
+can fix. Re-authenticating an institution is a browser flow, `monarch-doctor` can only
+request a sync. Nothing cancels a subscription, so `monarch-subscription-manager` can at
+most dismiss a stale recurring stream. And `monarch-cashflow-analyzer` reports anomalies
+to investigate rather than changes to make.
+
 | Skill | What it does |
 |---|---|
 | `monarch-doctor` | Connections needing re-auth, stale or disconnected accounts, and what data they invalidate. Run this first, because every other analysis is wrong in proportion to how long a connection has been dead. |
