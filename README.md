@@ -24,7 +24,7 @@ directory: the skills load here, the Monarch connection lives here, and neither 
 you into unrelated work.
 
 That scoping is the point. These skills are useless outside a Monarch session and they
-cost tokens in every session that loads them (~600 always-on for the five), so installing
+cost tokens in every session that loads them (~600 always-on for the six), so installing
 them user-wide taxes every project you open in exchange for nothing. Editing a `SKILL.md`
 here also takes effect immediately, which an install does not.
 
