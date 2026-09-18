@@ -14,10 +14,12 @@ It must exit 0.
 
 ## Constraints
 
-- **Skills are read-only.** `.mcp.json` defaults `MONARCH_MCP_READ_ONLY` on, and read-only
-  mode *unregisters* the 28 mutating tools rather than refusing them — a skill that tells
-  Claude to call `update_transaction` fails at runtime because the tool does not exist.
-  Lint enforces this; do not work around it.
+- **Skills report first, apply on request.** The read path must work under the read-only
+  default, so a skill may only name a write tool under an `## Apply` section — read-only
+  mode *unregisters* the 28 mutating tools rather than refusing them, and a skill that
+  names one in its gather or judge steps sends Claude at a tool that does not exist.
+  The apply section says the write needs `MONARCH_MCP_READ_ONLY=0` and stops if it is
+  missing. Lint enforces the placement; do not work around it.
 - **`allowed-tools` pre-approves, it does not restrict.** List the specific read tools a
   skill calls. Never wildcard the server, or a user running with writes enabled gets
   mutations pre-approved without a prompt.
