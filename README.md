@@ -149,8 +149,9 @@ then the checks it cannot know about:
 
 ## Security review
 
-`609d790` was reviewed before pinning. Verdict: **safe with caveats**. Full notes in
-[SECURITY-REVIEW.md](SECURITY-REVIEW.md). What matters if you install this:
+The pinned commit was reviewed before pinning — a static read of this server's source,
+no runtime execution and no dependency audit. Verdict: **safe with caveats**. What
+matters if you install this:
 
 - **Your session token is stored in plaintext when no OS keyring is available** (Docker,
   WSL, headless). It's `0600` in `~/.monarch-mcp-server/token`, but it's a long-lived
