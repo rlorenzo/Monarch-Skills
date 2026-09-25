@@ -6,7 +6,7 @@
       "args": [
         "--with", "mcp[cli]<3",
         "--with", "monarchmoneycommunity==1.5.2",
-        "--from", "git+https://github.com/robcerda/monarch-mcp-server@609d790bfafc6957ee824caa77b3be129c72ea4a",
+        "--from", "git+https://github.com/robcerda/monarch-mcp-server@5cc005783086ef232cdb967a5259b4cfa78d05f4",
         "monarch-mcp-server"
       ],
       "env": {

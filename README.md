@@ -88,9 +88,9 @@ Upstream ships with write access **on**. This repo flips that:
 "env": { "MONARCH_MCP_READ_ONLY": "${MONARCH_MCP_READ_ONLY:-1}" }
 ```
 
-Read-only is enforced by never registering the 28 mutating tools, so they are absent from
+Read-only is enforced by never registering the 29 mutating tools, so they are absent from
 the tool list rather than refused at call time. A model talked into a write by a merchant
-name it read back has nothing to call. Verified: 28 tools withheld at startup.
+name it read back has nothing to call. Verified: 29 tools withheld at startup.
 
 To allow writes, set `MONARCH_MCP_READ_ONLY=0` yourself. Per launch:
 
@@ -108,7 +108,7 @@ not track:
 ```
 
 Claude Code puts that in the session environment and `.mcp.json` reads it through
-`${MONARCH_MCP_READ_ONLY:-1}`. Restart, then check `/mcp`: 30 tools becomes 58.
+`${MONARCH_MCP_READ_ONLY:-1}`. Restart, then check `/mcp`: 30 tools becomes 59.
 
 Don't edit the committed default. It is what protects anyone who clones this and starts
 running skills before reading anything. Leave the approval prompts on the write tools too.
@@ -123,7 +123,7 @@ way. See [Skills](#skills).
 
 | Pin | Why |
 |---|---|
-| `@609d790…` (full commit sha) | uv skips the git fetch entirely; a bare `main` re-resolves HEAD on every launch |
+| `@5cc0057…` (full commit sha) | uv skips the git fetch entirely; a bare `main` re-resolves HEAD on every launch |
 | `mcp[cli]<3` | upstream declares `mcp>=1.10.0` unbounded; mcp 2.x already broke older commits at startup |
 | `monarchmoneycommunity==1.5.2` | upstream declares it unbounded; this matches their lockfile |
 
