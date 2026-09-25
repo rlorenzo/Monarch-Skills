@@ -26,10 +26,10 @@ connection has been dead.
 2. `get_accounts` — needed because `get_account_sync_health` does not report whether an
    account is active or hidden, which is what tells a broken connection apart from a
    closed one. Join the two by account name, and watch for near-duplicate names across
-   people or accounts. Gives per-account `sync.state` (`ok`, `needs_reauth`, `disconnected`,
-   `sync_disabled`, `manual`), `needs_reauth`, `disconnected_at`, `sync_disabled`,
-   `connection_status`, `data_provider`, `last_updated_at`, `is_active`, `is_hidden`,
-   `balance`.
+   people or accounts. Each account has a `sync` block with `state` (`ok`, `needs_reauth`,
+   `disconnected`, `sync_disabled`, `manual`), `needs_reauth`, `connection_status`,
+   `disconnected_at`, `sync_disabled` and `data_provider`, plus top-level
+   `last_updated_at`, `is_active`, `is_hidden` and `balance`.
 3. For an account whose balance looks suspicious, `get_account_balance_history(account_id=...)`
    to see when it flatlined — that dates the outage.
 4. `get_transactions(start_date=..., end_date=...)` filtered to a suspect account when you
