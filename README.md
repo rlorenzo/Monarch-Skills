@@ -128,8 +128,8 @@ way. See [Skills](#skills).
 | `monarchmoneycommunity==1.5.2` | upstream declares it unbounded; this matches their lockfile |
 
 `uvx` ignores the upstream `uv.lock`, so dependency bounds have to live here. Bump all
-three together and re-run the security review when you do. Upstream publishes no tags or
-releases, so the sha is pinning a snapshot of a moving branch.
+three together and re-review the server's source at the new sha when you do. Upstream
+publishes no tags or releases, so the sha is pinning a snapshot of a moving branch.
 
 ## Lint
 
@@ -146,30 +146,6 @@ then the checks it cannot know about:
   registered under the default, so a gather or judge step that calls one dies at runtime
 - `.mcp.json` still pins a full commit sha with an `mcp` upper bound, which
   `scripts/login` depends on
-
-## Security review
-
-The pinned commit was reviewed before pinning — a static read of this server's source,
-no runtime execution and no dependency audit. Verdict: **safe with caveats**. What
-matters if you install this:
-
-- **Your session token is stored in plaintext when no OS keyring is available** (Docker,
-  WSL, headless). It's `0600` in `~/.monarch-mcp-server/token`, but it's a long-lived
-  token with full account read/write that never expires, and `monarch_logout` doesn't
-  revoke it server-side.
-- **The server deletes files under the current working directory.** It removes three fixed
-  session filenames it did not create, on every save and logout. Legitimate intent (the upstream
-  client leaves a plaintext token in a relative `.mm/`), but worth knowing.
-- **`delete_transaction` and `delete_transaction_rule` execute immediately.** No
-  `dry_run`, no confirmation. Read-only mode withholds both.
-- Identity tools echo your email and name into the transcript.
-
-Clean on the things that would have been dealbreakers: no exfiltration (only
-`api.monarch.com`), no telemetry, no obfuscation, no install hooks, no `eval`/`exec`/
-`subprocess`, no string-built GraphQL, and no reads of unrelated files.
-
-The review covered this repo's source only. `monarchmoneycommunity`, which makes every
-actual API call, is a third-party fork and is the largest unaudited surface.
 
 ## Skills
 

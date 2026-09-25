@@ -26,8 +26,7 @@ It must exit 0.
 - **The MCP server is pinned to a full commit sha** in `.mcp.json`, with upper bounds on
   `mcp` and `monarchmoneycommunity` because `uvx` ignores the upstream lockfile and
   resolves dependencies fresh on every launch. `scripts/login` reads that same pin.
-  Bump all of it together, re-review the server's source at the new sha, and update the
-  Security review section of `README.md` when you do.
+  Bump all of it together, and re-review the server's source at the new sha when you do.
 
 ## Writing skills
 
