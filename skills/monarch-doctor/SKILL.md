@@ -26,9 +26,10 @@ connection has been dead.
 2. `get_accounts` — needed because `get_account_sync_health` does not report whether an
    account is active or hidden, which is what tells a broken connection apart from a
    closed one. Join the two by account name, and watch for near-duplicate names across
-   people or accounts. Gives per-account `sync.state` (`ok`, `needs_reauth`, `disconnected`,
-   `sync_disabled`, `manual`), `needs_reauth`, `disconnected_at`, `sync_disabled`,
-   `data_provider`, `last_updated_at`, `is_active`, `is_hidden`, `balance`.
+   people or accounts. Each account has a `sync` block with `state` (`ok`, `needs_reauth`,
+   `disconnected`, `sync_disabled`, `manual`), `needs_reauth`, `connection_status`,
+   `disconnected_at`, `sync_disabled` and `data_provider`, plus top-level
+   `last_updated_at`, `is_active`, `is_hidden` and `balance`.
 3. For an account whose balance looks suspicious, `get_account_balance_history(account_id=...)`
    to see when it flatlined — that dates the outage.
 4. `get_transactions(start_date=..., end_date=...)` filtered to a suspect account when you
@@ -55,6 +56,14 @@ connection has been dead.
   reason you set something aside.
 - **A recent `last_updated_at` with `needs_reauth: true` still means broken.** The
   timestamp records the last attempt, not the last successful import. Trust the state.
+- **`sync.connection_status` is the institution's health, not the user's login.** It is
+  the provider's status for the whole bank (`HEALTHY`, `DEGRADED`, `DOWN`, or null), the
+  same on every account there. It moves independently of `needs_reauth`: a connection
+  can need re-auth at a `HEALTHY` bank, and a bank can be `DOWN` while this user's
+  accounts still read `ok`. Use it to split "reconnect" from "wait": a broken connection
+  at a `DOWN` or `DEGRADED` bank may be the provider's outage, and re-authenticating
+  into it rarely helps until the bank recovers. Never read `HEALTHY` as clearing a
+  `needs_reauth`.
 - **Zero balances are ambiguous.** A $0 balance on a broken connection may be a real zero
   or a failed read. Say which you cannot distinguish rather than reporting a $0 balance
   as fact.

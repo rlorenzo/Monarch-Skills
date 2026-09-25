@@ -88,9 +88,9 @@ Upstream ships with write access **on**. This repo flips that:
 "env": { "MONARCH_MCP_READ_ONLY": "${MONARCH_MCP_READ_ONLY:-1}" }
 ```
 
-Read-only is enforced by never registering the 28 mutating tools, so they are absent from
+Read-only is enforced by never registering the 29 mutating tools, so they are absent from
 the tool list rather than refused at call time. A model talked into a write by a merchant
-name it read back has nothing to call. Verified: 28 tools withheld at startup.
+name it read back has nothing to call. Verified: 29 tools withheld at startup.
 
 To allow writes, set `MONARCH_MCP_READ_ONLY=0` yourself. Per launch:
 
@@ -108,7 +108,7 @@ not track:
 ```
 
 Claude Code puts that in the session environment and `.mcp.json` reads it through
-`${MONARCH_MCP_READ_ONLY:-1}`. Restart, then check `/mcp`: 30 tools becomes 58.
+`${MONARCH_MCP_READ_ONLY:-1}`. Restart, then check `/mcp`: 30 tools becomes 59.
 
 Don't edit the committed default. It is what protects anyone who clones this and starts
 running skills before reading anything. Leave the approval prompts on the write tools too.
@@ -123,13 +123,13 @@ way. See [Skills](#skills).
 
 | Pin | Why |
 |---|---|
-| `@609d790…` (full commit sha) | uv skips the git fetch entirely; a bare `main` re-resolves HEAD on every launch |
+| `@5cc0057…` (full commit sha) | uv skips the git fetch entirely; a bare `main` re-resolves HEAD on every launch |
 | `mcp[cli]<3` | upstream declares `mcp>=1.10.0` unbounded; mcp 2.x already broke older commits at startup |
 | `monarchmoneycommunity==1.5.2` | upstream declares it unbounded; this matches their lockfile |
 
 `uvx` ignores the upstream `uv.lock`, so dependency bounds have to live here. Bump all
-three together and re-run the security review when you do. Upstream publishes no tags or
-releases, so the sha is pinning a snapshot of a moving branch.
+three together and re-review the server's source at the new sha when you do. Upstream
+publishes no tags or releases, so the sha is pinning a snapshot of a moving branch.
 
 ## Lint
 
@@ -146,30 +146,6 @@ then the checks it cannot know about:
   registered under the default, so a gather or judge step that calls one dies at runtime
 - `.mcp.json` still pins a full commit sha with an `mcp` upper bound, which
   `scripts/login` depends on
-
-## Security review
-
-The pinned commit was reviewed before pinning — a static read of this server's source,
-no runtime execution and no dependency audit. Verdict: **safe with caveats**. What
-matters if you install this:
-
-- **Your session token is stored in plaintext when no OS keyring is available** (Docker,
-  WSL, headless). It's `0600` in `~/.monarch-mcp-server/token`, but it's a long-lived
-  token with full account read/write that never expires, and `monarch_logout` doesn't
-  revoke it server-side.
-- **The server deletes files under the current working directory.** It removes three fixed
-  session filenames it did not create, on every save and logout. Legitimate intent (the upstream
-  client leaves a plaintext token in a relative `.mm/`), but worth knowing.
-- **`delete_transaction` and `delete_transaction_rule` execute immediately.** No
-  `dry_run`, no confirmation. Read-only mode withholds both.
-- Identity tools echo your email and name into the transcript.
-
-Clean on the things that would have been dealbreakers: no exfiltration (only
-`api.monarch.com`), no telemetry, no obfuscation, no install hooks, no `eval`/`exec`/
-`subprocess`, no string-built GraphQL, and no reads of unrelated files.
-
-The review covered this repo's source only. `monarchmoneycommunity`, which makes every
-actual API call, is a third-party fork and is the largest unaudited surface.
 
 ## Skills
 

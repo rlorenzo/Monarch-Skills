@@ -96,7 +96,9 @@ canonical choice when it contradicts the counts, and it also marks the groups wh
 spellings are dormant, which are worth merging only for tidier history.
 
 Flag separately, because it is the case with a real cost: a split where more than one
-variant has a recurring stream. Cross-check against `get_recurring_transactions`.
+variant has a recurring stream. Cross-check against
+`get_recurring_transactions(start_date=..., end_date=..., include_liabilities=False)`,
+whose `stream.merchant_id` ties each stream to one merchant record.
 
 ## Report
 
@@ -122,14 +124,9 @@ Say so and stop rather than working around it.
 
 There is no merge endpoint, and `update_merchant` is not a shortcut to one: renaming a
 merchant to a name already in use fails with `A merchant with this name already exists`,
-so the duplicate cannot be folded in wholesale. Reassignment is per transaction, which
-means a group costs one call per transaction and a long-running split can cost hundreds.
-Count them first and tell the user the number before starting, because that is the real
-price of the merge and it is theirs to accept.
-
-Reassign each transaction to the canonical name:
-
-`update_transaction(transaction_id=..., merchant_name="<canonical>")`
+so the duplicate cannot be folded in wholesale. The merge is reassigning every
+transaction to the canonical name. Tell the user how many transactions a group moves
+before starting.
 
 Passing a name that already exists attaches the transaction to that existing merchant
 record rather than creating another one. Verified: the response comes back with the
@@ -139,10 +136,23 @@ copy the canonical spelling exactly, including punctuation.
 Work one group at a time:
 
 1. Collect the transaction ids for the non-canonical variants.
-2. Update the first one, and check the returned `merchant.id` matches the canonical
-   record before doing the rest. If it came back with a new id, the spelling was off.
-   Stop and fix it rather than creating a third merchant.
-3. Confirm with `get_merchant(canonical_id)`: `transaction_count` should have grown by
+2. Move one with `update_transaction(transaction_id=..., merchant_name="<canonical>")`
+   and check the returned `merchant.id` matches the canonical record. If it came back
+   with a new id, the spelling was off. Stop and fix it rather than creating a third
+   merchant. This probe is the reason to start with the single-transaction tool: the
+   bulk one reports a count, not which merchant the name landed on.
+3. Move the rest in one request with
+   `bulk_update_transactions(transaction_ids=[...], merchant_name="<canonical>")`, the
+   same bulk endpoint Monarch's web client uses. It attaches to the existing record the
+   same way the single-transaction tool does. The response gives `requested` and
+   `affected`; if they differ, stop and report rather than retrying. Its `dry_run` flag
+   only echoes the planned update back without asking Monarch anything, so it adds
+   nothing to the report the user already confirmed.
+   A large batch can outlast the client's 10-second timeout and come back as
+   `TimeoutError` while Monarch still applies every update. Verified: a 2,574-id batch
+   timed out and all of it landed. Treat a timeout as unknown, not failed: re-read before
+   retrying, and report what the re-read shows.
+4. Confirm with `get_merchant(canonical_id)`: `transaction_count` should have grown by
    exactly the number moved.
 
 Then tell the user what is left behind, because the merge does not clean it up:

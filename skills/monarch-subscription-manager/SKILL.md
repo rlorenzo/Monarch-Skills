@@ -11,10 +11,11 @@ Read-only. You cannot cancel anything — produce a list the user acts on.
 
 ## Gather
 
-1. `get_recurring_transactions(start_date=..., end_date=...)` — Monarch's known recurring
-   streams. Each row has `date`, `amount`, `is_past`, `transaction_id`, `category`,
-   `account`, and a `stream` with `id`, `frequency`, `amount`, `is_approximate`,
-   `merchant`. This is the starting list, not the whole list.
+1. `get_recurring_transactions(start_date=..., end_date=..., include_liabilities=False)`
+   — Monarch's known recurring streams. Each row has `date`, `amount`, `is_past`,
+   `transaction_id`, `category`, `account`, and a `stream` with `id`, `name`,
+   `frequency`, `amount`, `is_approximate`, `merchant`, `merchant_id`. This is the
+   starting list, not the whole list.
 2. `get_transactions(start_date=..., end_date=...)` over the last 6-12 months to catch
    recurring charges Monarch has not flagged as streams. Page with `limit`/`offset`.
 3. `search_transactions(search="<merchant>", start_date=..., end_date=...)` per candidate
@@ -26,6 +27,12 @@ Read-only. You cannot cancel anything — produce a list the user acts on.
   a subscription audit that only calls `get_recurring_transactions` will understate the
   total. Always sweep raw transactions for merchants charging a similar amount on a
   similar day each month.
+- **Liability bills are included unless you opt out.** The default adds synced credit
+  card and loan statements as recurring rows. A card statement is the sum of charges
+  already counted on their own, so pass `include_liabilities=False` or the card bill
+  double-counts every subscription billed to it.
+- **`limit` and `offset` do nothing here.** Monarch returns the whole window whatever
+  they are set to, and `truncated` stays `false`. One call per window, no paging.
 - **The window includes future predictions.** `is_past: false` rows are forecast
   occurrences, and `transaction_id: null` means no actual transaction. Never count a
   prediction as money already spent.

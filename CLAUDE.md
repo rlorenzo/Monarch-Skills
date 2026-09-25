@@ -16,7 +16,7 @@ It must exit 0.
 
 - **Skills report first, apply on request.** The read path must work under the read-only
   default, so a skill may only name a write tool under an `## Apply` section — read-only
-  mode *unregisters* the 28 mutating tools rather than refusing them, and a skill that
+  mode *unregisters* the 29 mutating tools rather than refusing them, and a skill that
   names one in its gather or judge steps sends Claude at a tool that does not exist.
   The apply section says the write needs `MONARCH_MCP_READ_ONLY=0` and stops if it is
   missing. Lint enforces the placement; do not work around it.
@@ -26,8 +26,7 @@ It must exit 0.
 - **The MCP server is pinned to a full commit sha** in `.mcp.json`, with upper bounds on
   `mcp` and `monarchmoneycommunity` because `uvx` ignores the upstream lockfile and
   resolves dependencies fresh on every launch. `scripts/login` reads that same pin.
-  Bump all of it together, re-review the server's source at the new sha, and update the
-  Security review section of `README.md` when you do.
+  Bump all of it together, and re-review the server's source at the new sha when you do.
 
 ## Writing skills
 

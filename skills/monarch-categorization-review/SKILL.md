@@ -93,12 +93,22 @@ Only when the user asks, and only for the findings they confirm. Recategorizing 
 creating rules need `MONARCH_MCP_READ_ONLY=0`. If the tools below are absent, that is
 why. Say so and stop rather than working around it.
 
-Recategorize with `bulk_categorize_transactions(transaction_ids=[...],
-category_id=...)`, which takes one category across many transactions and marks them
-reviewed by default. Use `categorize_transaction` for a single one. Both fan out to one
-request per transaction rather than a bulk API call, so a large group is slow rather
-than atomic, and a partial failure leaves the rest applied. The result reports
-`successful` and `failed` counts; read them rather than assuming the whole batch landed.
+Recategorize a group with `bulk_update_transactions(transaction_ids=[...],
+category_id=..., needs_review=False)`. It is one request to Monarch's own bulk endpoint
+whatever the group size, and reports `requested` and `affected` for the batch; if they
+differ, stop and report rather than retrying. Pass `needs_review=False` deliberately:
+unlike the older tools it leaves the review flag alone unless told. Its `dry_run` flag
+only echoes the planned update back without asking Monarch anything, so skip it.
+
+A large batch can outlast the client's 10-second timeout and come back as
+`TimeoutError` while Monarch still applies every update. Verified: a 2,574-id batch
+timed out and all of it landed. Treat a timeout as unknown, not failed: re-read before
+retrying, and report what the re-read shows.
+
+`bulk_categorize_transactions` still exists and fans out one request per transaction.
+It is slower, but reports `successful` and `failed` per item, so reach for it when the
+user wants to know exactly which transactions did not take. Use
+`categorize_transaction` for a single one.
 
 Create a rule with `create_transaction_rule`, then verify what it will do before moving
 on. Verified against a live account:
