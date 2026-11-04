@@ -26,7 +26,9 @@ Read-only. You cannot cancel anything — produce a list the user acts on.
 - **Monarch's stream list is incomplete.** Anything it has not learned yet is missing, so
   a subscription audit that only calls `get_recurring_transactions` will understate the
   total. Always sweep raw transactions for merchants charging a similar amount on a
-  similar day each month.
+  similar day each month. A merchant can also hold an `is_active: true` stream that this
+  list leaves out, when its `has_active_recurring_streams` is `false`, so a regular
+  charge missing here may already be a stream. `get_merchant` shows it.
 - **Liability bills are included unless you opt out.** The default adds synced credit
   card and loan statements as recurring rows. A card statement is the sum of charges
   already counted on their own, so pass `include_liabilities=False` or the card bill
