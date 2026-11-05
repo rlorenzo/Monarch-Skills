@@ -2,7 +2,7 @@
 name: monarch-merchant-review
 description: Find merchants split across several spellings in Monarch Money: the same business recorded under two or more names, which fragments merchant-level reporting and recurring-subscription detection. Use when the user asks about duplicate or split merchants, why a merchant's totals look low, why one subscription appears twice, or wants to tidy up merchant names.
 license: MIT
-allowed-tools: mcp__monarch-money__get_transactions mcp__monarch-money__get_transaction_details mcp__monarch-money__get_merchant mcp__monarch-money__get_recurring_transactions
+allowed-tools: mcp__monarch-money__get_transactions mcp__monarch-money__get_merchant mcp__monarch-money__get_recurring_transactions mcp__monarch-money__get_transaction_rules
 ---
 
 # Merchant review
@@ -49,12 +49,14 @@ There is no tool that lists merchants. Build the list from transactions.
 - **A full page will exceed the tool-output limit and be written to a file instead.**
   At `limit=2000` a page is roughly 2 MB. Do not try to read those files into context.
   Extract `.result`, parse it, and do the grouping in a script.
-- **Neither `get_transactions` nor `search_transactions` returns a merchant id**, only
-  the display name. Grouping by name is enough to find splits, and the merge below works
-  by name too, so you rarely need ids. `get_transaction_details` has the id under
-  `merchant.id` when you do.
-- **`get_merchant` takes an id, not a name.** Use it to confirm a merge landed:
-  `transaction_count`, and `can_be_deleted: true` once a record is empty.
+- **`get_transactions` returns `merchant_id` on every row; `search_transactions` does
+  not.** Collect each variant's id from the same scan that finds the splits, since the
+  stream check and the merge confirmation below both need it.
+- **`get_merchant` takes an id, not a name.** Use it to confirm a merge landed by
+  `transaction_count`. Do not rely on `can_be_deleted` for that: it can stay `false`
+  after a record reaches zero.
+- **`rule_count` does not cover merchant-criteria rules.** It reads `0` on a merchant
+  that a rule matches by name. Search `get_transaction_rules` for the spelling instead.
 
 ## Judge
 
@@ -96,9 +98,11 @@ canonical choice when it contradicts the counts, and it also marks the groups wh
 spellings are dormant, which are worth merging only for tidier history.
 
 Flag separately, because it is the case with a real cost: a split where more than one
-variant has a recurring stream. Cross-check against
-`get_recurring_transactions(start_date=..., end_date=..., include_liabilities=False)`,
-whose `stream.merchant_id` ties each stream to one merchant record.
+variant has a recurring stream. Check with `get_merchant(merchant_id)` on every variant
+of the groups you keep, reading `recurring_stream`. `get_recurring_transactions` is not
+enough: it left out `is_active: true` streams on merchants with
+`has_active_recurring_streams: false`, so it can report one stream on a split that has
+two.
 
 ## Report
 
@@ -157,14 +161,21 @@ Work one group at a time:
 
 Then tell the user what is left behind, because the merge does not clean it up:
 
-- **The emptied merchant record survives** with `transaction_count: 0` and
-  `can_be_deleted: true`. This server exposes no merchant-delete tool; it is removed in
-  Monarch's UI, or left alone, where it is harmless but visible in merchant pickers.
-- **Its recurring stream survives and stays `is_active: true`**, even though the
-  merchant's own `has_active_recurring_streams` flips to `false`. A stale stream keeps
+- **The emptied merchant record survives** with `transaction_count: 0`. `can_be_deleted`
+  may read `true` or stay `false`, so do not promise it can be deleted yet. This server
+  exposes no merchant-delete tool; it is removed in Monarch's UI, or left alone, where
+  it is harmless but visible in merchant pickers.
+- **Its recurring stream survives and stays `is_active: true`**, and the merchant's own
+  `has_active_recurring_streams` may or may not flip to `false`. A stale stream can keep
   the subscription showing twice, which was likely the point of merging. Offer
   `review_recurring_stream(stream_id=..., review_status="ignored")` to dismiss it, and
   do not call it without asking, since it is a second write on a different object.
+- **Merging a live subscription can drop it from `get_recurring_transactions`.** When
+  the old record held the listed stream and the canonical record's stream was not
+  listed, the subscription disappeared from that list after the merge, forecast and all,
+  while `get_merchant` still showed both streams. Re-read the list after merging a group
+  with a stream, and say so if the subscription is gone. Check before dismissing the old
+  stream, since it may be the only one Monarch was showing.
 - **Rules keyed to the old spelling still exist** and will re-split future charges. A
   merchant rule using `eq` only matches that exact name; switching it to `contains` on
   the distinctive part of the name covers every variant. `update_transaction_rule` is
