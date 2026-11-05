@@ -2,7 +2,7 @@
 name: monarch-transactions-review
 description: Work through the Monarch Money transaction review queue, including backlogs of thousands. Finds what is distorting the numbers (income that is not income, spending hidden as transfers, possible duplicates, stuck pending items, accounts that exist twice) and sorts every flagged transaction into safe to mark reviewed or worth a look. Use when the user mentions transactions needing review, a review queue or backlog, asks whether anything looks strange in unreviewed transactions, or wants to bulk mark transactions reviewed, even if they only give a count.
 license: MIT
-allowed-tools: mcp__monarch-money__get_transactions_needing_review mcp__monarch-money__get_transactions mcp__monarch-money__get_transaction_details mcp__monarch-money__get_transaction_categories mcp__monarch-money__get_transaction_category_groups mcp__monarch-money__get_transaction_rules mcp__monarch-money__get_accounts mcp__monarch-money__get_account_sync_health mcp__monarch-money__get_cashflow_by_month
+allowed-tools: mcp__monarch-money__get_transactions_needing_review mcp__monarch-money__get_transactions mcp__monarch-money__get_transaction_categories mcp__monarch-money__get_transaction_rules mcp__monarch-money__get_accounts mcp__monarch-money__get_account_sync_health mcp__monarch-money__get_cashflow_by_month
 ---
 
 # Transactions review
@@ -124,12 +124,12 @@ Take the first row that matches:
 | Review | Pending | May never post |
 | Review | Part of a finding above, possible duplicates included | Unresolved |
 | Safe | $0 | No effect on totals |
-| Safe | Activity on an investment account, apart from uncategorized items | High volume, and rarely in cash flow. Confirm with the cash flow check |
 | Safe | Transfer or card payment with a matched opposite side | Both sides accounted for |
 | Review | Any other transfer or card payment | May be hidden spending |
 | Safe | Interest or dividend under the small line | Routine, once checked for double counting above |
 | Review | Income or catch-all category | Decides reported income, or has no real category |
 | Review | Person-to-person or generic merchant (Zelle, Venmo, PayPal, "Deposit") | The merchant says nothing about the purpose |
+| Safe | Any other activity on an investment account | High volume, and rarely in cash flow. Confirm with the cash flow check |
 | Review | Any other positive amount | May be a refund or a miscategorized credit |
 | Review | At or above the large line | Worth a glance whatever it is |
 | Safe | Normal spending under the small line | Low stakes, whatever the merchant |
