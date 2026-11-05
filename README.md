@@ -164,6 +164,7 @@ to investigate rather than changes to make.
 |---|---|
 | `monarch-doctor` | Connections needing re-auth, stale or disconnected accounts, and what data they invalidate. Run this first, because every other analysis is wrong in proportion to how long a connection has been dead. |
 | `monarch-categorization-review` | Uncategorized transactions, likely miscategorizations, and auto-categorization rules to propose. |
+| `monarch-transactions-review` | The review queue, including large backlogs: what distorts the numbers, possible duplicates, and what is safe to mark reviewed. |
 | `monarch-budget-analyzer` | 6-12 months of budget vs actual: chronically over, chronically under, unbudgeted spending, and recommended amounts. |
 | `monarch-cashflow-analyzer` | Spending trends plus anomalies worth investigating: spikes, duplicates, silent price hikes, possible fraud. |
 | `monarch-subscription-manager` | Every recurring charge, normalized to monthly and annual cost, with cut and downgrade candidates. |
