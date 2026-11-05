@@ -18,9 +18,10 @@ user's numbers, then shrink the queue to what a person actually needs to look at
 1. `get_transactions_needing_review(limit=<more than the queue>)` for the whole queue.
    Call it once with `limit=1` first: `total_count` gives the size. Compare it with any
    number the user quoted and report a gap.
-2. `get_transactions` for the same dates plus a month either side, in date chunks. This
-   is what the matching below runs against, because the other side of a transfer may
-   already be reviewed and so absent from the queue.
+2. `get_transactions` for the same dates plus a month either side, in date chunks. Its
+   `limit` defaults to 100, so page each chunk with `limit` and `offset` until
+   `truncated` is false. This is what the matching below runs against, because the other
+   side of a transfer may already be reviewed and so absent from the queue.
 3. `get_accounts` and `get_account_sync_health`, so a stale connection is not mistaken
    for missing activity, and duplicate accounts can be spotted.
 4. `get_transaction_rules`, since a rule may be causing a repeated miscategorization.
@@ -115,7 +116,7 @@ history over everything fetched, not just the queue, matching names case-insensi
 - **Catch-all:** `Uncategorized`, `Miscellaneous`, `Check`, `Cash & ATM`, `Other Income`.
 - **Established category:** the merchant has 5 or more transactions, and at least 10% of
   them are in this category.
-- **Usual amount:** at most 3 times the merchant's median amount.
+- **Usual amount:** in absolute terms, at most 3 times the merchant's median amount.
 
 Take the first row that matches:
 
