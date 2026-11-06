@@ -2,7 +2,7 @@
 name: monarch-transactions-review
 description: Work through the Monarch Money transaction review queue, including backlogs of thousands. Finds what is distorting the numbers (income that is not income, spending hidden as transfers, possible duplicates, stuck pending items, accounts that exist twice) and sorts every flagged transaction into safe to mark reviewed or worth a look. Use when the user mentions transactions needing review, a review queue or backlog, asks whether anything looks strange in unreviewed transactions, or wants to bulk mark transactions reviewed, even if they only give a count.
 license: MIT
-allowed-tools: mcp__monarch-money__get_transactions_needing_review mcp__monarch-money__get_transactions mcp__monarch-money__get_transaction_categories mcp__monarch-money__get_transaction_rules mcp__monarch-money__get_accounts mcp__monarch-money__get_account_sync_health mcp__monarch-money__get_cashflow_by_month
+allowed-tools: mcp__monarch-money__get_transactions_needing_review mcp__monarch-money__get_transactions mcp__monarch-money__get_transaction_categories mcp__monarch-money__get_transaction_rules mcp__monarch-money__get_accounts mcp__monarch-money__get_account_sync_health mcp__monarch-money__get_cashflow_by_month mcp__plugin_monarch-skills_monarch-money__get_transactions_needing_review mcp__plugin_monarch-skills_monarch-money__get_transactions mcp__plugin_monarch-skills_monarch-money__get_transaction_categories mcp__plugin_monarch-skills_monarch-money__get_transaction_rules mcp__plugin_monarch-skills_monarch-money__get_accounts mcp__plugin_monarch-skills_monarch-money__get_account_sync_health mcp__plugin_monarch-skills_monarch-money__get_cashflow_by_month
 ---
 
 # Transactions review

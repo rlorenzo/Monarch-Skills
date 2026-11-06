@@ -2,7 +2,7 @@
 name: monarch-subscription-manager
 description: Find every recurring subscription and membership in Monarch Money, total what they cost per month and year, and flag candidates to cancel, downgrade, or question. Use when the user asks about subscriptions, recurring charges, what they pay monthly, or wants to cut recurring costs.
 license: MIT
-allowed-tools: mcp__monarch-money__get_recurring_transactions mcp__monarch-money__get_transactions mcp__monarch-money__search_transactions mcp__monarch-money__get_merchant
+allowed-tools: mcp__monarch-money__get_recurring_transactions mcp__monarch-money__get_transactions mcp__monarch-money__search_transactions mcp__monarch-money__get_merchant mcp__plugin_monarch-skills_monarch-money__get_recurring_transactions mcp__plugin_monarch-skills_monarch-money__get_transactions mcp__plugin_monarch-skills_monarch-money__search_transactions mcp__plugin_monarch-skills_monarch-money__get_merchant
 ---
 
 # Subscription manager

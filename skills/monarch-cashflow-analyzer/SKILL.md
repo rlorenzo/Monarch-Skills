@@ -2,7 +2,7 @@
 name: monarch-cashflow-analyzer
 description: Analyze Monarch Money cash flow for spending trends and anomalies — unusual charges, spikes, duplicate transactions, and patterns worth investigating for fraud, billing errors, or creeping costs. Use when the user asks about spending trends, unusual or suspicious transactions, where their money went, or wants a check for fraud and billing mistakes.
 license: MIT
-allowed-tools: mcp__monarch-money__get_cashflow_by_month mcp__monarch-money__get_spending_summary mcp__monarch-money__get_transactions mcp__monarch-money__search_transactions mcp__monarch-money__get_accounts
+allowed-tools: mcp__monarch-money__get_cashflow_by_month mcp__monarch-money__get_spending_summary mcp__monarch-money__get_transactions mcp__monarch-money__search_transactions mcp__monarch-money__get_accounts mcp__plugin_monarch-skills_monarch-money__get_cashflow_by_month mcp__plugin_monarch-skills_monarch-money__get_spending_summary mcp__plugin_monarch-skills_monarch-money__get_transactions mcp__plugin_monarch-skills_monarch-money__search_transactions mcp__plugin_monarch-skills_monarch-money__get_accounts
 ---
 
 # Cashflow analyzer

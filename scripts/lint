@@ -66,9 +66,18 @@ def check_skills():
         # allowed-tools pre-approves, it does not restrict. Listing a write tool
         # here would silently skip the prompt for a mutation if someone runs
         # with MONARCH_MCP_READ_ONLY off.
-        for tool in fields.get("allowed-tools", "").replace(",", " ").split():
+        tools = fields.get("allowed-tools", "").replace(",", " ").split()
+        for tool in tools:
             if tool.rpartition("__")[2] in MUTATING_TOOLS:
                 errors.append(f"{rel}: allowed-tools pre-approves write tool {tool}")
+        # The server's tools have one name in a clone and another in an installed
+        # plugin, and a skill only gets its pre-approval under the exact name.
+        clone, plugin = "mcp__monarch-money__", "mcp__plugin_monarch-skills_monarch-money__"
+        for tool in tools:
+            if tool.startswith(clone) and tool.replace(clone, plugin) not in tools:
+                errors.append(f"{rel}: allowed-tools lists {tool} without its plugin name")
+            if tool.startswith(plugin) and tool.replace(plugin, clone) not in tools:
+                errors.append(f"{rel}: allowed-tools lists {tool} without its clone name")
         if fields.get("name") != skill.parent.name:
             errors.append(
                 f"{rel}: frontmatter name {fields.get('name')!r} "
