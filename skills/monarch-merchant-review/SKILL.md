@@ -2,7 +2,7 @@
 name: monarch-merchant-review
 description: Find merchants split across several spellings in Monarch Money: the same business recorded under two or more names, which fragments merchant-level reporting and recurring-subscription detection. Use when the user asks about duplicate or split merchants, why a merchant's totals look low, why one subscription appears twice, or wants to tidy up merchant names.
 license: MIT
-allowed-tools: mcp__monarch-money__get_transactions mcp__monarch-money__get_merchant mcp__monarch-money__get_recurring_transactions mcp__monarch-money__get_transaction_rules
+allowed-tools: mcp__monarch-money__get_transactions mcp__monarch-money__get_merchant mcp__monarch-money__get_recurring_transactions mcp__monarch-money__get_transaction_rules mcp__plugin_monarch-skills_monarch-money__get_transactions mcp__plugin_monarch-skills_monarch-money__get_merchant mcp__plugin_monarch-skills_monarch-money__get_recurring_transactions mcp__plugin_monarch-skills_monarch-money__get_transaction_rules
 ---
 
 # Merchant review

@@ -189,6 +189,10 @@ does not stop for a permission prompt per call. Note that `allowed-tools` pre-ap
 rather than restricts. It is an ergonomic setting, not a safety control, which is why
 the lists name read tools explicitly instead of wildcarding the server.
 
+Each list names every tool twice, because the server's tools are `mcp__monarch-money__*` in
+a clone and `mcp__plugin_monarch-skills_monarch-money__*` in an installed plugin. Lint checks
+that both are there.
+
 Each skill encodes the quirks of this MCP server's tools, which is most of their value.
 For instance `uncategorized_only` on `get_transactions_needing_review` filters one fetched
 page locally, so it reports `count: 0, truncated: true` on an account that has plenty of

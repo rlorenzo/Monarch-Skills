@@ -27,6 +27,8 @@ gets the `no-version-bump` label instead.
 - **`allowed-tools` pre-approves, it does not restrict.** List the specific read tools a
   skill calls. Never wildcard the server, or a user running with writes enabled gets
   mutations pre-approved without a prompt.
+  List each tool under both its clone and installed plugin names, or plugin users get a
+  denial or a prompt on every read. Lint checks this.
 - **The MCP server is pinned to a full commit sha** in `.mcp.json`, with upper bounds on
   `mcp` and `monarchmoneycommunity` because `uvx` ignores the upstream lockfile and
   resolves dependencies fresh on every launch. `scripts/login` reads that same pin.

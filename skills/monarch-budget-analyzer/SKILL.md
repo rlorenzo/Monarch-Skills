@@ -2,7 +2,7 @@
 name: monarch-budget-analyzer
 description: Analyze Monarch Money budget performance over 6-12 months, finding which categories run over, under, or on plan, and recommending budget adjustments grounded in actual spending. Use when the user asks how they are tracking against budget, whether a budget is realistic, where they overspend, or wants help resetting budget amounts.
 license: MIT
-allowed-tools: mcp__monarch-money__get_budgets mcp__monarch-money__get_cashflow_by_month mcp__monarch-money__get_spending_summary mcp__monarch-money__get_accounts
+allowed-tools: mcp__monarch-money__get_budgets mcp__monarch-money__get_cashflow_by_month mcp__monarch-money__get_spending_summary mcp__monarch-money__get_accounts mcp__plugin_monarch-skills_monarch-money__get_budgets mcp__plugin_monarch-skills_monarch-money__get_cashflow_by_month mcp__plugin_monarch-skills_monarch-money__get_spending_summary mcp__plugin_monarch-skills_monarch-money__get_accounts
 ---
 
 # Budget analyzer
