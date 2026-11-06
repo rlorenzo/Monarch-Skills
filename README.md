@@ -24,7 +24,7 @@ directory: the skills load here, the Monarch connection lives here, and neither 
 you into unrelated work.
 
 That scoping is the point. These skills are useless outside a Monarch session and they
-cost tokens in every session that loads them (~600 always-on for the six), so installing
+cost tokens in every session that loads them (~700 always-on for the seven), so installing
 them user-wide taxes every project you open in exchange for nothing. Editing a `SKILL.md`
 here also takes effect immediately, which an install does not.
 
@@ -146,6 +146,10 @@ then the checks it cannot know about:
   registered under the default, so a gather or judge step that calls one dies at runtime
 - `.mcp.json` still pins a full commit sha with an `mcp` upper bound, which
   `scripts/login` depends on
+
+CI also fails a PR that changes `skills/` or `.mcp.json` without changing `version` in
+`.claude-plugin/plugin.json`, because plugin users get nothing until that field moves. For a doc-only
+edit to a skill, add the `no-version-bump` label.
 
 ## Evals
 
