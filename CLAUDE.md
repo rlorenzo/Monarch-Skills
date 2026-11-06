@@ -49,3 +49,4 @@ skill or a commit message. Write the gotcha generically.
 | `.claude-plugin/` | plugin and marketplace manifests |
 | `scripts/login` | one-time auth; reads the pin from `.mcp.json` |
 | `scripts/lint` | validator plus repo-specific checks |
+| `evals/` | eval cases and synthetic mocks; must stay outside `skills/`, or `claude plugin eval` refuses to run them |

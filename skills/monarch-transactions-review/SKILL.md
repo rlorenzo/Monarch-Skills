@@ -81,7 +81,8 @@ because the other side may be reviewed already. Match against all transactions.
 **Possible duplicates.** Same account, date, amount, and statement text. Then check
 before calling one a duplicate:
 - Two installments of equal size, each with the same "N of M", that both begin in the
-  same month are usually two plans, not a duplicate.
+  same month are usually two plans, not a duplicate. Say so in one line, leave them out
+  of the possible duplicates, and sort them like any other transaction.
 - Equal transfers that appear on both accounts the same number of times are probably real.
 - Sync duplicates do happen, so "probably fine" still means ask the user to check a
   statement. Say "possible".
