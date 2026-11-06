@@ -12,6 +12,10 @@ a pinned build of [robcerda/monarch-mcp-server](https://github.com/robcerda/mona
 Runs `claude plugin validate` on the manifests and skills, then the repo-specific checks.
 It must exit 0.
 
+A PR that changes `skills/` or `.mcp.json` must also bump `version` in `.claude-plugin/plugin.json`, and CI
+fails it otherwise. Bump when the pin moves or a skill's judgment changes. A doc-only edit
+gets the `no-version-bump` label instead.
+
 ## Constraints
 
 - **Skills report first, apply on request.** The read path must work under the read-only
@@ -49,4 +53,5 @@ skill or a commit message. Write the gotcha generically.
 | `.claude-plugin/` | plugin and marketplace manifests |
 | `scripts/login` | one-time auth; reads the pin from `.mcp.json` |
 | `scripts/lint` | validator plus repo-specific checks |
+| `scripts/check-version-bump` | CI check that skill and pin changes bump the plugin version |
 | `evals/` | eval cases and synthetic mocks; must stay outside `skills/`, or `claude plugin eval` refuses to run them |

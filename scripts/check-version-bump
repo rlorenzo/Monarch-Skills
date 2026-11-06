@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Fail if skills/ or .mcp.json changed since <base> but plugin.json's version did not.
+base="${1:?usage: check-version-bump <base-ref>}"
+git rev-parse --verify --quiet "$base^{commit}" >/dev/null || { echo "::error::unknown base ref: $base"; exit 1; }
+git diff --quiet "$base"...HEAD -- skills .mcp.json && exit 0
+version() { git show "$1:.claude-plugin/plugin.json" | jq -r .version; }
+[ "$(version "$base")" != "$(version HEAD)" ] && exit 0
+echo "::error::skills/ or .mcp.json changed without a version bump in .claude-plugin/plugin.json. For a doc-only edit, add the no-version-bump label."
+exit 1

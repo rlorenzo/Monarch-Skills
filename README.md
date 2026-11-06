@@ -147,6 +147,10 @@ then the checks it cannot know about:
 - `.mcp.json` still pins a full commit sha with an `mcp` upper bound, which
   `scripts/login` depends on
 
+CI also fails a PR that changes `skills/` or `.mcp.json` without changing `version` in
+`.claude-plugin/plugin.json`, because plugin users get nothing until that field moves. For a doc-only
+edit to a skill, add the `no-version-bump` label.
+
 ## Evals
 
 ```bash

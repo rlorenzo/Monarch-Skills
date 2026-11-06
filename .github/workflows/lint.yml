@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
 
 jobs:
   lint:
@@ -18,3 +19,14 @@ jobs:
       # `claude plugin validate` reads manifests off disk and needs no auth.
       - run: npm install -g @anthropic-ai/claude-code
       - run: ./scripts/lint
+
+  version-bump:
+    # Marketplace installs compare plugin.json's version, so a skill change
+    # without a bump never reaches plugin users.
+    if: github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'no-version-bump')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: ./scripts/check-version-bump "${{ github.event.pull_request.base.sha }}"
