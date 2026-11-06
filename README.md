@@ -147,6 +147,16 @@ then the checks it cannot know about:
 - `.mcp.json` still pins a full commit sha with an `mcp` upper bound, which
   `scripts/login` depends on
 
+## Evals
+
+```bash
+claude plugin eval . --model sonnet --ablation none --no-publish
+```
+
+The cases in `evals/` run against the invented account in `evals/mocks/monarch-money/`, so they need no Monarch login and the real server never starts. Each run calls a model on your Claude credential.
+
+Keep the mocks small. Larger results are saved to a folder the eval sandbox cannot read, which is also why these cases don't use a live account. Don't pass `--mocks off`: it runs against your real account, and the results can hold your financial data.
+
 ## Skills
 
 Every skill reports before it changes anything. On the read-only default, reporting is

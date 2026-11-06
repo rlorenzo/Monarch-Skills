@@ -4,3 +4,6 @@ __pycache__/
 # Code-review loop artifacts, regenerated on every run
 agent-code-review.md
 agent-review-summary.md
+
+# Eval output, which can hold a run's data
+evals/results/
