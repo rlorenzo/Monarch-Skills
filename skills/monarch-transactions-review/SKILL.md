@@ -54,6 +54,8 @@ script, rather than reading thousands of rows into the conversation.
 - **Do not assume a category's effect on cash flow. Check it** with
   `get_cashflow_by_month`. `Uncategorized` counts toward cash flow, while transfer-group
   categories come out as zero. Custom investment categories can go either way.
+  Its results carry only `category_id`, so map them to names from
+  `get_transaction_categories`.
 - **The queue can stop at a sharp date.** No rule sets review status on its own, and the
   cause may not be visible from the API. Report the boundary as a question.
 

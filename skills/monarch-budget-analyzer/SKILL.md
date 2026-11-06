@@ -13,10 +13,12 @@ See `## Apply`.
 ## Gather
 
 1. `get_budgets(start_date=..., end_date=...)` returns one row per budgeted category per month:
-   `name`, `planned`, `actual`, `remaining`, `category_group`, `month`. Pull the full
-   window in one call; it accepts a multi-month range.
+   `id` (category id), `name`, `planned`, `actual`, `remaining`, `category_group`, `month`.
+   Pull the full window in one call; it accepts a multi-month range.
 2. `get_cashflow_by_month(start_date=..., end_date=...)` gives per-category monthly totals,
    to see the trend behind a variance and to catch spending in categories with no budget.
+   Rows carry only `category_id`, which matches `id` in `get_budgets`. That includes
+   categories with `planned: 0`.
 3. `get_spending_summary(start_date=..., end_date=...)` for window totals, income, and
    savings rate when the user wants the top-level picture.
 

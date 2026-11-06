@@ -12,7 +12,8 @@ Read-only. Surface what looks wrong; the user investigates and acts.
 ## Gather
 
 1. `get_cashflow_by_month(start_date=..., end_date=...)` — per-category monthly totals.
-   This is the trend backbone.
+   This is the trend backbone. Rows carry only `category_id`, so take the names from
+   `by_category` in step 2, using the same dates.
 2. `get_spending_summary(start_date=..., end_date=...)` — totals by category, group, and
    merchant, plus income, expenses, savings rate.
 3. `get_transactions(start_date=..., end_date=...)` for the periods or categories where a
