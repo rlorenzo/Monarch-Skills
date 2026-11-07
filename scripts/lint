@@ -31,6 +31,8 @@ MUTATING_TOOLS = {
     "update_savings_goal", "set_goal_contribution", "update_merchant",
     "review_recurring_stream", "monarch_login", "monarch_login_with_token",
     "monarch_logout", "update_account", "refresh_accounts",
+    "merge_merchants", "set_business_entity",
+    "create_transaction_category_group", "update_transaction_category_group",
 }
 
 # The official connector's writes. Whether they are absent or refused depends on the

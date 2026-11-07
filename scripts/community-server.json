@@ -5,8 +5,8 @@
       "command": "uvx",
       "args": [
         "--with", "mcp[cli]<3",
-        "--with", "monarchmoneycommunity==1.5.2",
-        "--from", "git+https://github.com/robcerda/monarch-mcp-server@5cc005783086ef232cdb967a5259b4cfa78d05f4",
+        "--with", "monarchmoneycommunity==1.7.1",
+        "--from", "git+https://github.com/robcerda/monarch-mcp-server@60051e35c9e8e86147575db1d2bdc157291d925b",
         "monarch-mcp-server"
       ],
       "env": {

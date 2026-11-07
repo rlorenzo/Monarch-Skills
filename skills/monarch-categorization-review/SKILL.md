@@ -50,6 +50,9 @@ about the period.
 
 ## Gotchas
 
+- **`get_transactions` includes hidden transactions by default.** Rows carry
+  `hide_from_reports`, and Monarch's reports leave those out, so sums taken from rows can run
+  high. Pass `include_hidden=False` to leave them out.
 - **`get_transactions` needs both dates.** Passing only `start_date` returns
   `{"error": true, "message": "You must specify both a startDate and endDate..."}`.
 - **Do not use `get_transactions_needing_review(uncategorized_only=True)` to find
