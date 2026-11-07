@@ -230,9 +230,12 @@ def check_pin():
         errors.append(f"community-server.json: server is not pinned to a full commit sha ({sha!r})")
     if not any(a.startswith("mcp[cli]") for a in args):
         errors.append("community-server.json: no upper bound on mcp; a new major will break the pin")
+    entry = mcp["mcpServers"]["monarch-money"]
+    if entry.get("env", {}).get("MONARCH_MCP_READ_ONLY") != "${MONARCH_MCP_READ_ONLY:-1}":
+        errors.append("community-server.json: the server is no longer read-only by default")
     # Plugin users copy the setup command from the README, so it has to keep up.
-    if json.dumps(args, separators=(",", ":")) not in (ROOT / "README.md").read_text():
-        errors.append("README.md: the community server command does not match the args in community-server.json")
+    if json.dumps(entry, separators=(",", ":")) not in (ROOT / "README.md").read_text():
+        errors.append("README.md: the community server command does not match community-server.json")
 
 
 def run_validator():

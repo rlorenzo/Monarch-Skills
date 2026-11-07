@@ -35,7 +35,7 @@ These replace Gather, Gotchas, and Apply in the main file.
   `monarch-doctor` on the community server.
 - **Unknown filter keys are silently ignored and match everything.** `filters` is a JSON
   string that must include `transaction_type`. These keys were tested and work:
-  `needs_review`, `search`, `merchants`, `accounts`, `categories`, and `visibility`. `review_status` and
+  `needs_review`, `search`, `merchants`, `accounts`, `categories`, `category_type`, and `visibility`. `review_status` and
   `merchant_ids` do nothing. Sanity-check counts with `total_count_only` when a filter matters.
 - **Paging is limited.** `limit` tops out at 100, and `include_details` forces it to 20. Usage
   is capped weekly with no published number, so avoid full-history scans when `GetCashFlow`,
@@ -90,7 +90,8 @@ To clear a bucket, leave out `category_id`. Run it first with `dry_run=true`, wh
 affected count without writing. No batch size has been tested here, so start with a small batch.
 
 Keep the ids and original categories of each change somewhere the user can find them. Setting
-`review_status` to `needs_review` undoes a clear. Restoring categories takes that record.
+`review_status` to `needs_review` should undo a clear, but that has not been run live, so check
+the result. Restoring categories takes that record.
 
 `DeleteTransaction` only works on manual transactions, so it cannot remove a stuck synced item.
 Leave those for Monarch's app, and use it only on manual transactions the user names.

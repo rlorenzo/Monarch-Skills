@@ -18,10 +18,10 @@ and it cannot confirm a connection is healthy. For a real check, point to the co
    to about 10 with a nonzero balance whose type should change regularly, such as checking, cards,
    and loans. There, a `change_amount` of zero marks a balance that has not moved. Movement is weak
    evidence the other way: prices, interest, and amortization change balances without a sync.
-3. For accounts that should be active, `GetTransactions` with
-   `filters='{"transaction_type":"All","accounts":["<name>"]}'` and `limit=1` gives the latest
-   transaction date, which is the stronger signal. Do this for 2 or 3 of the most active accounts,
-   since each one is a call.
+3. For accounts that should be active, `GetTransactions` over the same 90 days with
+   `filters='{"transaction_type":"All","accounts":["<name>"],"visibility":"all"}'` and `limit=1`
+   gives the latest transaction date, which is the stronger signal. Do this for 2 or 3 of the most
+   active accounts, since each one is a call.
 
 ## Gotchas
 
@@ -41,7 +41,7 @@ and it cannot confirm a connection is healthy. For a real check, point to the co
   `monarch-doctor` on the community server.
 - **Unknown filter keys are silently ignored and match everything.** `filters` is a JSON
   string that must include `transaction_type`. These keys were tested and work:
-  `needs_review`, `search`, `merchants`, `accounts`, `categories`, and `visibility`. `review_status` and
+  `needs_review`, `search`, `merchants`, `accounts`, `categories`, `category_type`, and `visibility`. `review_status` and
   `merchant_ids` do nothing. Sanity-check counts with `total_count_only` when a filter matters.
 - **Paging is limited.** `limit` tops out at 100, and `include_details` forces it to 20. Usage
   is capped weekly with no published number, so avoid full-history scans when `GetCashFlow`,

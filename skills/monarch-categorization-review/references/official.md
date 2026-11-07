@@ -8,8 +8,9 @@ These replace Gather, Gotchas, and Apply in the main file.
 2. `ListRules` for existing rules, since one may cause the miscategorization. Check
    `merchant_names`, `merchant_names_legacy`, and `original_statement_values` in `criteria`. A rule
    with `amount` or `account_ids` there only applies to those transactions.
-3. `GetTransactions` with `filters='{"transaction_type":"All","categories":["Uncategorized"]}'`.
-4. `GetTransactions` for the review window, default the last 30 days. Follow `next_offset`.
+3. `GetTransactions` for the review window, default the last 30 days, with
+   `filters='{"transaction_type":"All","categories":["Uncategorized"]}'`.
+4. `GetTransactions` for the same window with no category filter. Follow `next_offset`.
 
 ## Gotchas
 
@@ -29,7 +30,7 @@ These replace Gather, Gotchas, and Apply in the main file.
   `monarch-doctor` on the community server.
 - **Unknown filter keys are silently ignored and match everything.** `filters` is a JSON
   string that must include `transaction_type`. These keys were tested and work:
-  `needs_review`, `search`, `merchants`, `accounts`, `categories`, and `visibility`. `review_status` and
+  `needs_review`, `search`, `merchants`, `accounts`, `categories`, `category_type`, and `visibility`. `review_status` and
   `merchant_ids` do nothing. Sanity-check counts with `total_count_only` when a filter matters.
 - **Paging is limited.** `limit` tops out at 100, and `include_details` forces it to 20. Usage
   is capped weekly with no published number, so avoid full-history scans when `GetCashFlow`,

@@ -12,8 +12,8 @@ These replace Gather, Gotchas, and Apply in the main file.
    them only if that fits the usage cap. Otherwise pick candidates from `GetMerchants`, which is
    sorted by transaction count, skip transfer and investment names, and try
    `search` on words like subscription and membership. Say the sweep was not exhaustive.
-3. `GetTransactions` with `filters='{"transaction_type":"All","merchants":["<merchant>"]}'` per
-   candidate for its charge history, cadence, and price changes. The match is fuzzy, so drop rows from
+3. `GetTransactions` over the last 12 months with
+   `filters='{"transaction_type":"All","merchants":["<merchant>"]}'` per candidate for its charge history, cadence, and price changes. The match is fuzzy, so drop rows from
    other businesses. Keep a spelling variant only if its amounts and cadence continue the same
    charge, because its older charges are the price history. If that is unclear, report them
    separately and say so.
@@ -38,7 +38,7 @@ These replace Gather, Gotchas, and Apply in the main file.
   `monarch-doctor` on the community server.
 - **Unknown filter keys are silently ignored and match everything.** `filters` is a JSON
   string that must include `transaction_type`. These keys were tested and work:
-  `needs_review`, `search`, `merchants`, `accounts`, `categories`, and `visibility`. `review_status` and
+  `needs_review`, `search`, `merchants`, `accounts`, `categories`, `category_type`, and `visibility`. `review_status` and
   `merchant_ids` do nothing. Sanity-check counts with `total_count_only` when a filter matters.
 - **Paging is limited.** `limit` tops out at 100, and `include_details` forces it to 20. Usage
   is capped weekly with no published number, so avoid full-history scans when `GetCashFlow`,

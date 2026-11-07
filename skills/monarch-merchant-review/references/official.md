@@ -11,7 +11,7 @@ These replace Gather, Gotchas, and Apply in the main file.
 2. `GetMerchants(search=...)` for each group you keep, for `merchant_id` and `transaction_count`.
    It matches a substring, so search the shared root of the spellings, with and without punctuation.
    `entity_id` matches `merchant_id`. Paging every merchant is impractical on a large account.
-3. For the groups you keep, `GetTransactions` with
+3. For the groups you keep, `GetTransactions` over the same window with
    `filters='{"transaction_type":"All","search":"<variant>"}'` gives each variant's last-seen date.
    The match is broad, so follow `next_offset` until a row's `merchant_id` is the variant's, or
    results run out.
@@ -37,7 +37,7 @@ These replace Gather, Gotchas, and Apply in the main file.
   `monarch-doctor` on the community server.
 - **Unknown filter keys are silently ignored and match everything.** `filters` is a JSON
   string that must include `transaction_type`. These keys were tested and work:
-  `needs_review`, `search`, `merchants`, `accounts`, `categories`, and `visibility`. `review_status` and
+  `needs_review`, `search`, `merchants`, `accounts`, `categories`, `category_type`, and `visibility`. `review_status` and
   `merchant_ids` do nothing. Sanity-check counts with `total_count_only` when a filter matters.
 - **Paging is limited.** `limit` tops out at 100, and `include_details` forces it to 20. Usage
   is capped weekly with no published number, so avoid full-history scans when `GetCashFlow`,
