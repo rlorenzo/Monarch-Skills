@@ -33,7 +33,7 @@ If both are connected, use the community server. Do not switch servers once a re
 
 ## Gather
 
-1. `get_recurring_transactions(start_date=..., end_date=..., include_liabilities=False)`
+1. `get_recurring_transactions(start_date=..., end_date=..., include_liabilities=False, limit=100)`
    — Monarch's known recurring streams. Each row has `date`, `amount`, `is_past`,
    `transaction_id`, `category`, `account`, and a `stream` with `id`, `name`,
    `frequency`, `amount`, `is_approximate`, `merchant`, `merchant_id`. This is the
@@ -45,6 +45,9 @@ If both are connected, use the community server. Do not switch servers once a re
 
 ## Gotchas
 
+- **`get_transactions` includes hidden transactions by default.** Rows carry
+  `hide_from_reports`, and Monarch's reports leave those out, so sums taken from rows can run
+  high. Pass `include_hidden=False` to leave them out.
 - **Monarch's stream list is incomplete.** Anything it has not learned yet is missing, so
   a subscription audit that only calls `get_recurring_transactions` will understate the
   total. Always sweep raw transactions for merchants charging a similar amount on a
@@ -55,8 +58,10 @@ If both are connected, use the community server. Do not switch servers once a re
   card and loan statements as recurring rows. A card statement is the sum of charges
   already counted on their own, so pass `include_liabilities=False` or the card bill
   double-counts every subscription billed to it.
-- **`limit` and `offset` do nothing here.** Monarch returns the whole window whatever
-  they are set to, and `truncated` stays `false`. One call per window, no paging.
+- **Always pass `limit`, though its value does nothing.** With any `limit`, Monarch returns the
+  whole window once, ignoring `limit` and `offset`, so make one call per window and do not page.
+  Without one, the tool pages for you, but since `offset` is ignored, a window of 100 rows or more
+  comes back repeated up to 50 times. Verified live.
 - **The window includes future predictions.** `is_past: false` rows are forecast
   occurrences, and `transaction_id: null` means no actual transaction. Never count a
   prediction as money already spent.
