@@ -2,8 +2,8 @@
 """Lint the plugin manifests and skills.
 
 Runs Claude Code's own validator when available, then the checks it cannot know
-about: that skills only reference tools this repo's read-only config actually
-exposes, and that the MCP pin scripts/login depends on is still a real commit.
+about: that skills only name write tools where a write is allowed, that each works
+on either server, and that the pin scripts/login depends on is still a real commit.
 """
 
 import json
@@ -15,7 +15,7 @@ import sys
 
 ROOT = pathlib.Path(__file__).parent.parent
 
-# Withheld when MONARCH_MCP_READ_ONLY is set, which .mcp.json defaults to on.
+# Withheld when MONARCH_MCP_READ_ONLY is set, which community-server.json defaults to on.
 # A skill that tells Claude to call one of these fails at runtime: the tool is
 # never registered, so it is not merely refused, it does not exist.
 MUTATING_TOOLS = {
@@ -33,14 +33,30 @@ MUTATING_TOOLS = {
     "monarch_logout", "update_account", "refresh_accounts",
 }
 
+# The official connector's writes. Whether they are absent or refused depends on the
+# sign-in scope, so the read path must not name them either.
+OFFICIAL_MUTATING_TOOLS = {
+    "AllocateToGoal", "BulkRecategorizeTransactions", "BulkUpdateTransactions",
+    "CreateCategory", "CreateGoal", "CreateMerchant", "CreateRule", "CreateTag",
+    "CreateTransaction", "DeleteCategory", "DeleteGoal", "DeleteRule", "DeleteTag",
+    "DeleteTransaction", "MergeMerchants", "ReduceGoalAllocation", "ReportIssue",
+    "UpdateAccountBalanceHistory", "UpdateCategory", "UpdateGoal", "UpdateMerchant",
+    "UpdateRule", "UpdateTag", "UpdateTransaction", "UpdateTransactionSplits",
+}
+
 # Sorted once so the reported tool is deterministic when a line names two.
-SORTED_MUTATING_TOOLS = sorted(MUTATING_TOOLS)
+SORTED_MUTATING_TOOLS = sorted(MUTATING_TOOLS | OFFICIAL_MUTATING_TOOLS)
+
+COMMUNITY = "mcp__monarch-money__"
+OFFICIAL_PREFIXES = ("mcp__claude_ai_Monarch__", "mcp__monarch__")
+PIN_FILE = ROOT / "scripts" / "community-server.json"
 
 errors = []
 
 
 def check_skills():
     skills = sorted((ROOT / "skills").glob("*/SKILL.md"))
+    blocks = set()
     if not skills:
         errors.append("no skills found under skills/")
     for skill in skills:
@@ -65,19 +81,12 @@ def check_skills():
             errors.append(f"{rel}: no license in frontmatter")
         # allowed-tools pre-approves, it does not restrict. Listing a write tool
         # here would silently skip the prompt for a mutation if someone runs
-        # with MONARCH_MCP_READ_ONLY off.
+        # with writes enabled.
         tools = fields.get("allowed-tools", "").replace(",", " ").split()
         for tool in tools:
-            if tool.rpartition("__")[2] in MUTATING_TOOLS:
+            if tool.rpartition("__")[2] in MUTATING_TOOLS | OFFICIAL_MUTATING_TOOLS:
                 errors.append(f"{rel}: allowed-tools pre-approves write tool {tool}")
-        # The server's tools have one name in a clone and another in an installed
-        # plugin, and a skill only gets its pre-approval under the exact name.
-        clone, plugin = "mcp__monarch-money__", "mcp__plugin_monarch-skills_monarch-money__"
-        for tool in tools:
-            if tool.startswith(clone) and tool.replace(clone, plugin) not in tools:
-                errors.append(f"{rel}: allowed-tools lists {tool} without its plugin name")
-            if tool.startswith(plugin) and tool.replace(plugin, clone) not in tools:
-                errors.append(f"{rel}: allowed-tools lists {tool} without its clone name")
+        check_server_support(skill, rel, text, tools, blocks)
         if fields.get("name") != skill.parent.name:
             errors.append(
                 f"{rel}: frontmatter name {fields.get('name')!r} "
@@ -86,7 +95,42 @@ def check_skills():
         if not fields.get("description"):
             errors.append(f"{rel}: no description, so it will never be matched")
         check_write_tool_placement(rel, text[front.end():])
+    if len(blocks) > 1:
+        errors.append("skills: the '## Pick the server' block differs between skills")
     return len(skills)
+
+
+def check_server_support(skill, rel, text, tools, blocks):
+    """Every skill picks a server the same way and is pre-approved on each."""
+    block = re.search(r"^## Pick the server\n.*?(?=^## )", text, re.M | re.S)
+    if not block:
+        errors.append(f"{rel}: no '## Pick the server' section")
+    else:
+        blocks.add(block.group(0))
+    if COMMUNITY + "check_auth_status" not in tools:
+        errors.append(f"{rel}: allowed-tools does not list check_auth_status")
+    for tool in tools:
+        if tool.startswith("mcp__plugin_"):
+            errors.append(f"{rel}: allowed-tools lists {tool}, but the plugin bundles no server")
+    # The connector's prefix depends on how it was installed, and a skill only gets
+    # its pre-approval under the exact name.
+    official = {t.rpartition("__")[2] for t in tools if t.startswith(OFFICIAL_PREFIXES)}
+    for name in sorted(official):
+        for prefix in OFFICIAL_PREFIXES:
+            if prefix + name not in tools:
+                errors.append(f"{rel}: allowed-tools lists {name} without {prefix}{name}")
+    reference = skill.parent / "references" / "official.md"
+    if not reference.exists():
+        errors.append(f"{rel}: no references/official.md for the official connector")
+        return
+    ref_rel = reference.relative_to(ROOT)
+    body = reference.read_text()
+    check_write_tool_placement(ref_rel, body)
+    # Only the steps to run. Gotchas also name tools the skill never calls.
+    gather = body.partition("## Gotchas")[0]
+    for name in sorted(set(re.findall(r"`(Get[A-Z]\w+|ListRules)", gather))):
+        if name not in official:
+            errors.append(f"{ref_rel}: calls {name}, which allowed-tools does not list")
 
 
 def check_write_tool_placement(rel, body):
@@ -175,14 +219,20 @@ def check_write_tool_placement_self_test():
 
 
 def check_pin():
-    mcp = json.loads((ROOT / ".mcp.json").read_text())
+    # A root .mcp.json would be auto-loaded by the plugin and bundle the server again.
+    if (ROOT / ".mcp.json").exists():
+        errors.append(".mcp.json: the plugin auto-loads this, so the pin lives in scripts/community-server.json")
+    mcp = json.loads(PIN_FILE.read_text())
     args = mcp["mcpServers"]["monarch-money"]["args"]
     source = args[args.index("--from") + 1]
     sha = source.rpartition("@")[2]
     if not re.fullmatch(r"[0-9a-f]{40}", sha):
-        errors.append(f".mcp.json: server is not pinned to a full commit sha ({sha!r})")
+        errors.append(f"community-server.json: server is not pinned to a full commit sha ({sha!r})")
     if not any(a.startswith("mcp[cli]") for a in args):
-        errors.append(".mcp.json: no upper bound on mcp; a new major will break the pin")
+        errors.append("community-server.json: no upper bound on mcp; a new major will break the pin")
+    # Plugin users copy the setup command from the README, so it has to keep up.
+    if json.dumps(args, separators=(",", ":")) not in (ROOT / "README.md").read_text():
+        errors.append("README.md: the community server command does not match the args in community-server.json")
 
 
 def run_validator():

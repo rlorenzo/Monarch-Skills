@@ -8,8 +8,8 @@
     {
       "name": "monarch-skills",
       "source": "./",
-      "description": "Read-only Monarch Money analysis skills plus a pinned, security-reviewed MCP server."
+      "description": "Monarch Money analysis skills that work with Monarch's official MCP connector or a pinned community server."
     }
   ],
-  "description": "Read-only Monarch Money analysis skills with a pinned, security-reviewed MCP server."
+  "description": "Monarch Money analysis skills for Monarch's official MCP connector or a pinned community server."
 }

@@ -2,13 +2,35 @@
 name: monarch-budget-analyzer
 description: Analyze Monarch Money budget performance over 6-12 months, finding which categories run over, under, or on plan, and recommending budget adjustments grounded in actual spending. Use when the user asks how they are tracking against budget, whether a budget is realistic, where they overspend, or wants help resetting budget amounts.
 license: MIT
-allowed-tools: mcp__monarch-money__get_budgets mcp__monarch-money__get_cashflow_by_month mcp__monarch-money__get_spending_summary mcp__monarch-money__get_accounts mcp__plugin_monarch-skills_monarch-money__get_budgets mcp__plugin_monarch-skills_monarch-money__get_cashflow_by_month mcp__plugin_monarch-skills_monarch-money__get_spending_summary mcp__plugin_monarch-skills_monarch-money__get_accounts
+allowed-tools: mcp__monarch-money__check_auth_status mcp__monarch-money__get_budgets mcp__monarch-money__get_cashflow_by_month mcp__monarch-money__get_spending_summary mcp__monarch-money__get_accounts mcp__monarch-money__get_category_details mcp__claude_ai_Monarch__GetBudget mcp__claude_ai_Monarch__GetCashFlow mcp__claude_ai_Monarch__GetAccounts mcp__monarch__GetBudget mcp__monarch__GetCashFlow mcp__monarch__GetAccounts
 ---
 
 # Budget analyzer
 
 Reports first. Writes a budget only when the user asks, and only with writes enabled.
 See `## Apply`.
+
+## Pick the server
+
+Do this first, and name the server you used in the first line of the report.
+
+1. **Community server** (robcerda/monarch-mcp-server): if `check_auth_status` is available
+   and reports a session, follow this file as written. If it reports no session, or the
+   first read fails on auth, treat this server as not connected.
+2. **Official connector** (Monarch's hosted MCP): otherwise, if a server with "monarch" in its
+   name, in any case, has a tool ending in `__GetTransactions`, read `references/official.md` in
+   this skill's directory.
+   It replaces Gather, Gotchas, and Apply below, and everything else still applies using the
+   field names it gives. Without sign-in the connector only exposes `authenticate` tools,
+   so it is not connected.
+3. **Neither:** stop. Tell the user no Monarch server is connected and that either one works:
+   - Official connector: `claude mcp add --transport http monarch https://api.monarch.com/mcp`,
+     or add it as a claude.ai connector, then sign in through `/mcp`. It has fewer features.
+   - Community server: supports everything, and needs `uv`.
+
+   Link both to <https://github.com/rlorenzo/Monarch-Skills#connect-a-monarch-server>.
+
+If both are connected, use the community server. Do not switch servers once a read succeeds.
 
 ## Gather
 

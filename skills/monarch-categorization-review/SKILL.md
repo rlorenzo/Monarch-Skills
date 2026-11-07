@@ -2,13 +2,35 @@
 name: monarch-categorization-review
 description: Review how recent Monarch Money transactions are categorized. Finds uncategorized transactions, flags likely miscategorizations, and proposes auto-categorization rules to stop them recurring. Use when the user asks to review categories, clean up categorization, find uncategorized or miscategorized transactions, or asks why spending in a category looks wrong.
 license: MIT
-allowed-tools: mcp__monarch-money__get_transaction_categories mcp__monarch-money__get_transaction_rules mcp__monarch-money__get_transactions mcp__monarch-money__get_transactions_needing_review mcp__plugin_monarch-skills_monarch-money__get_transaction_categories mcp__plugin_monarch-skills_monarch-money__get_transaction_rules mcp__plugin_monarch-skills_monarch-money__get_transactions mcp__plugin_monarch-skills_monarch-money__get_transactions_needing_review
+allowed-tools: mcp__monarch-money__check_auth_status mcp__monarch-money__get_transaction_categories mcp__monarch-money__get_transaction_rules mcp__monarch-money__get_transactions mcp__monarch-money__get_transactions_needing_review mcp__claude_ai_Monarch__GetCategories mcp__claude_ai_Monarch__ListRules mcp__claude_ai_Monarch__GetTransactions mcp__monarch__GetCategories mcp__monarch__ListRules mcp__monarch__GetTransactions
 ---
 
 # Categorization review
 
 Reports first. Recategorizes and creates rules only when the user asks, and only with
 writes enabled. See `## Apply`.
+
+## Pick the server
+
+Do this first, and name the server you used in the first line of the report.
+
+1. **Community server** (robcerda/monarch-mcp-server): if `check_auth_status` is available
+   and reports a session, follow this file as written. If it reports no session, or the
+   first read fails on auth, treat this server as not connected.
+2. **Official connector** (Monarch's hosted MCP): otherwise, if a server with "monarch" in its
+   name, in any case, has a tool ending in `__GetTransactions`, read `references/official.md` in
+   this skill's directory.
+   It replaces Gather, Gotchas, and Apply below, and everything else still applies using the
+   field names it gives. Without sign-in the connector only exposes `authenticate` tools,
+   so it is not connected.
+3. **Neither:** stop. Tell the user no Monarch server is connected and that either one works:
+   - Official connector: `claude mcp add --transport http monarch https://api.monarch.com/mcp`,
+     or add it as a claude.ai connector, then sign in through `/mcp`. It has fewer features.
+   - Community server: supports everything, and needs `uv`.
+
+   Link both to <https://github.com/rlorenzo/Monarch-Skills#connect-a-monarch-server>.
+
+If both are connected, use the community server. Do not switch servers once a read succeeds.
 
 ## Gather
 
