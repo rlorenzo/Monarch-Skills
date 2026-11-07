@@ -2,7 +2,7 @@
 name: monarch-merchant-review
 description: Find merchants split across several spellings in Monarch Money: the same business recorded under two or more names, which fragments merchant-level reporting and recurring-subscription detection. Use when the user asks about duplicate or split merchants, why a merchant's totals look low, why one subscription appears twice, or wants to tidy up merchant names.
 license: MIT
-allowed-tools: mcp__monarch-money__get_transactions mcp__monarch-money__get_merchant mcp__monarch-money__get_recurring_transactions mcp__monarch-money__get_transaction_rules mcp__plugin_monarch-skills_monarch-money__get_transactions mcp__plugin_monarch-skills_monarch-money__get_merchant mcp__plugin_monarch-skills_monarch-money__get_recurring_transactions mcp__plugin_monarch-skills_monarch-money__get_transaction_rules
+allowed-tools: mcp__monarch-money__check_auth_status mcp__monarch-money__get_transactions mcp__monarch-money__get_merchant mcp__monarch-money__get_recurring_transactions mcp__monarch-money__get_transaction_rules mcp__claude_ai_Monarch__GetMerchants mcp__claude_ai_Monarch__GetCashFlow mcp__claude_ai_Monarch__GetTransactions mcp__claude_ai_Monarch__GetRecurring mcp__claude_ai_Monarch__ListRules mcp__monarch__GetMerchants mcp__monarch__GetCashFlow mcp__monarch__GetTransactions mcp__monarch__GetRecurring mcp__monarch__ListRules
 ---
 
 # Merchant review
@@ -14,6 +14,28 @@ Monarch creates a separate merchant record per distinct name its providers send.
 same business arrives hyphenated and unhyphenated, in title case and in caps, with and
 without a leading `The`, and every merchant-level view treats each spelling as its own
 business.
+
+## Pick the server
+
+Do this first, and name the server you used in the first line of the report.
+
+1. **Community server** (robcerda/monarch-mcp-server): if `check_auth_status` is available
+   and reports a session, follow this file as written. If it reports no session, or the
+   first read fails on auth, treat this server as not connected.
+2. **Official connector** (Monarch's hosted MCP): otherwise, if a server with "monarch" in its
+   name, in any case, has a tool ending in `__GetTransactions`, read `references/official.md` in
+   this skill's directory.
+   It replaces Gather, Gotchas, and Apply below, and everything else still applies using the
+   field names it gives. Without sign-in the connector only exposes `authenticate` tools,
+   so it is not connected.
+3. **Neither:** stop. Tell the user no Monarch server is connected and that either one works:
+   - Official connector: `claude mcp add --transport http monarch https://api.monarch.com/mcp`,
+     or add it as a claude.ai connector, then sign in through `/mcp`. It has fewer features.
+   - Community server: supports everything, and needs `uv`.
+
+   Link both to <https://github.com/rlorenzo/Monarch-Skills#connect-a-monarch-server>.
+
+If both are connected, use the community server. Do not switch servers once a read succeeds.
 
 ## What this does and does not fix
 

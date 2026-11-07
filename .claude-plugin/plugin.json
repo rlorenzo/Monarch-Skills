@@ -1,8 +1,7 @@
 {
   "name": "monarch-skills",
-  "description": "Skills for analyzing Monarch Money data through the monarch-mcp-server MCP server.",
-  "version": "1.2.0",
-  "mcpServers": "./.mcp.json",
+  "description": "Skills for analyzing Monarch Money data through Monarch's official MCP connector or robcerda/monarch-mcp-server.",
+  "version": "2.0.0",
   "author": {
     "name": "Rex Lorenzo",
     "url": "https://github.com/rlorenzo"

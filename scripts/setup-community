@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+"""Connect the pinned community server for the current directory, then log in.
+
+Registers community-server.json as a local-scope MCP server, read-only unless
+MONARCH_MCP_READ_ONLY=0 is set. Re-run after a pin bump to pick up the new commit.
+"""
+
+import json
+import os
+import pathlib
+import subprocess
+import sys
+
+here = pathlib.Path(__file__).parent
+entry = json.loads((here / "community-server.json").read_text())["mcpServers"]["monarch-money"]
+
+# add-json refuses to overwrite, so replacing an old pin means removing it first.
+subprocess.run(["claude", "mcp", "remove", "monarch-money", "-s", "local"], capture_output=True)
+result = subprocess.run(["claude", "mcp", "add-json", "monarch-money", json.dumps(entry)])
+if result.returncode != 0:
+    sys.exit(result.returncode)
+
+login = str(here / "login")
+os.execv(login, [login])
