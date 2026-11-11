@@ -35,7 +35,7 @@ If both are connected, use the community server. Do not switch servers once a re
 
 1. `get_cashflow_by_month(start_date=..., end_date=...)` — per-category monthly totals.
    This is the trend backbone. Rows carry only `category_id`, so take the names from
-   `by_category` in step 2, using the same dates.
+   `by_category.rows` in step 2, using the same dates.
 2. `get_spending_summary(start_date=..., end_date=...)` — totals by category, group, and
    merchant, plus income, expenses, savings rate.
 3. `get_transactions(start_date=..., end_date=...)` for the periods or categories where a
@@ -48,6 +48,13 @@ months when checking for annual charges or seasonality.
 
 ## Gotchas
 
+- **`get_spending_summary` breakdowns are objects, not lists.** `by_category`,
+  `by_category_group`, and `by_merchant` each hold `rows`, `total`, `returned`, and `truncated`.
+  A long merchant list is trimmed to the largest rows to fit the response, so check `truncated`.
+  `limit=0` turns trimming off, but a wide window can then exceed the response limit.
+- **`get_transactions` includes hidden transactions by default.** Rows carry
+  `hide_from_reports`, and Monarch's reports leave those out, so sums taken from rows can run
+  high. Pass `include_hidden=False` to leave them out.
 - **`get_transactions` needs both dates.** Only one returns an error, not a partial result.
 - **Amounts are signed**: expenses negative, income positive. A positive amount in an
   expense category is normally a refund.

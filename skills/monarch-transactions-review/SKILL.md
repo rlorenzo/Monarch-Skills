@@ -68,9 +68,10 @@ script, rather than reading thousands of rows into the conversation.
   `get_transactions` calls it `original_statement`, and also adds `review_status`.
 - **`category_group` comes back empty on transactions.** Map a category to its group
   from `get_transaction_categories`.
-- **Hidden transactions do not come back from either tool**, even when they exist. That
-  can make the count lower than the one in Monarch's app. Say it may explain a gap, not
-  that it does.
+- **Both tools include hidden transactions by default.** Rows carry `hide_from_reports`, and
+  the queue's `total_count` is higher than a visible-only count such as the official connector's.
+  `include_hidden=False` leaves them out. Hidden rows cannot distort reports, so list them
+  separately instead of under what is distorting the numbers.
 - **Match merchants case-insensitively, on merchant and statement text.** The same
   business can appear in capitals or under a longer name, and an exact match undercounts.
 - **Do not assume a category's effect on cash flow. Check it** with

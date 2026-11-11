@@ -88,7 +88,7 @@ From a clone, in the directory where you want it available:
 Without a clone, register it yourself from the project directory:
 
 ```bash
-claude mcp add-json monarch-money '{"type":"stdio","command":"uvx","args":["--with","mcp[cli]<3","--with","monarchmoneycommunity==1.5.2","--from","git+https://github.com/robcerda/monarch-mcp-server@5cc005783086ef232cdb967a5259b4cfa78d05f4","monarch-mcp-server"],"env":{"MONARCH_MCP_READ_ONLY":"${MONARCH_MCP_READ_ONLY:-1}"}}'
+claude mcp add-json monarch-money '{"type":"stdio","command":"uvx","args":["--with","mcp[cli]<3","--with","monarchmoneycommunity==1.7.1","--from","git+https://github.com/robcerda/monarch-mcp-server@60051e35c9e8e86147575db1d2bdc157291d925b","monarch-mcp-server"],"env":{"MONARCH_MCP_READ_ONLY":"${MONARCH_MCP_READ_ONLY:-1}"}}'
 ```
 
 Then log in with `scripts/login` from a clone. Choose **session cookies from browser**. It is
@@ -101,7 +101,7 @@ vendored here, so bumping the pin updates login too. Nothing is written to this 
 no MFA secret, no config to edit.
 
 > The server also exposes `monarch_login` as an in-client tool, but read-only mode withholds it,
-> because writing a session counts as durable-state mutation (`read_only.py:57-62`). Logging in through the
+> because writing a session counts as durable-state mutation (`read_only.py:63-68`). Logging in through the
 > client would mean starting the server with `MONARCH_MCP_READ_ONLY=0`, which is why the script
 > above is the recommended path.
 
@@ -124,9 +124,9 @@ This repo flips that:
 "env": { "MONARCH_MCP_READ_ONLY": "${MONARCH_MCP_READ_ONLY:-1}" }
 ```
 
-Read-only is enforced by never registering the 29 mutating tools, so they are absent from
+Read-only is enforced by never registering the 33 mutating tools, so they are absent from
 the tool list rather than refused at call time. A model talked into a write by a merchant
-name it read back has nothing to call. Verified: 29 tools withheld at startup.
+name it read back has nothing to call. Verified: 33 tools withheld at startup.
 
 To allow writes, set `MONARCH_MCP_READ_ONLY=0` yourself. Per launch:
 
@@ -144,7 +144,7 @@ not track:
 ```
 
 Claude Code puts that in the session environment and the registered server reads it through
-`${MONARCH_MCP_READ_ONLY:-1}`. Restart, then check `/mcp`: 30 tools becomes 59.
+`${MONARCH_MCP_READ_ONLY:-1}`. Restart, then check `/mcp`: 35 tools becomes 68.
 
 Don't edit the committed default. It is what protects anyone who clones this and starts
 running skills before reading anything. Leave the approval prompts on the write tools too.
@@ -159,9 +159,9 @@ way. See [Skills](#skills).
 
 | Pin | Why |
 |---|---|
-| `@5cc0057…` (full commit sha) | uv skips the git fetch entirely; a bare `main` re-resolves HEAD on every launch |
-| `mcp[cli]<3` | upstream declares `mcp>=1.10.0` unbounded; mcp 2.x already broke older commits at startup |
-| `monarchmoneycommunity==1.5.2` | upstream declares it unbounded; this matches their lockfile |
+| `@60051e3…` (full commit sha) | uv skips the git fetch entirely; a bare `main` re-resolves HEAD on every launch |
+| `mcp[cli]<3` | upstream declares `<3` today; this holds the ceiling if a later pin drops it, since a new major has broken startup before |
+| `monarchmoneycommunity==1.7.1` | upstream declares it unbounded; this matches their lockfile |
 
 `uvx` ignores the upstream `uv.lock`, so dependency bounds have to live here. Bump all
 three together, update the README command, and re-review the server's source at the new sha when you do. Upstream

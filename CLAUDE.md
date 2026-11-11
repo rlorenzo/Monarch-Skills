@@ -22,7 +22,7 @@ gets the `no-version-bump` label instead.
 
 - **Skills report first, apply on request.** The read path must work under the read-only
   default, so a skill may only name a write tool under an `## Apply` section — read-only
-  mode *unregisters* the 29 mutating tools rather than refusing them, and a skill that
+  mode *unregisters* the 33 mutating tools rather than refusing them, and a skill that
   names one in its gather or judge steps sends Claude at a tool that does not exist.
   The apply section says the write needs `MONARCH_MCP_READ_ONLY=0` and stops if it is
   missing. In `references/official.md`, it needs write access on the connection instead.

@@ -63,6 +63,11 @@ There is no tool that lists merchants. Build the list from transactions.
 
 ## Gotchas
 
+- **Pass `limit` to `get_recurring_transactions`.** Any value returns the whole window once.
+  Without one, a window of 100 rows or more comes back repeated up to 50 times.
+- **`get_transactions` includes hidden transactions by default.** Rows carry
+  `hide_from_reports`, and Monarch's reports leave those out, so sums taken from rows can run
+  high. Pass `include_hidden=False` to leave them out.
 - **`get_transactions` needs both dates.** Passing only `start_date` returns
   `{"error": true, "message": "You must specify both a startDate and endDate..."}`.
 - **The response is an envelope, not a list.** Transactions are under `data`, with
@@ -75,8 +80,7 @@ There is no tool that lists merchants. Build the list from transactions.
   not.** Collect each variant's id from the same scan that finds the splits, since the
   stream check and the merge confirmation below both need it.
 - **`get_merchant` takes an id, not a name.** Use it to confirm a merge landed by
-  `transaction_count`. Do not rely on `can_be_deleted` for that: it can stay `false`
-  after a record reaches zero.
+  `transaction_count`.
 - **`rule_count` does not cover merchant-criteria rules.** It reads `0` on a merchant
   that a rule matches by name. Search `get_transaction_rules` for the spelling instead.
 
@@ -148,61 +152,35 @@ Only when the user asks, and only for groups they name or confirm. Merging is a 
 so it needs `MONARCH_MCP_READ_ONLY=0`. If the tools below are absent, that is why.
 Say so and stop rather than working around it.
 
-There is no merge endpoint, and `update_merchant` is not a shortcut to one: renaming a
-merchant to a name already in use fails with `A merchant with this name already exists`,
-so the duplicate cannot be folded in wholesale. The merge is reassigning every
-transaction to the canonical name. Tell the user how many transactions a group moves
-before starting.
+`merge_merchants(source_merchant_id=..., target_merchant_id=...)` is the "Merge & delete"
+action in Monarch's app. It moves the source's transactions to the target and **deletes the
+source**. It has no dry run and cannot be undone. Renaming with `update_merchant` is not a
+shortcut: a name already in use fails with `A merchant with this name already exists`.
 
-Passing a name that already exists attaches the transaction to that existing merchant
-record rather than creating another one. Verified: the response comes back with the
-canonical merchant's own id. Passing a name that does not exist creates a merchant, so
-copy the canonical spelling exactly, including punctuation.
+Work one group at a time, one source at a time:
 
-Work one group at a time:
+1. Tell the user the source, the target, and how many transactions move, and get a yes.
+2. Record what the merge might disturb: `get_merchant` on both for `transaction_count` and
+   `recurring_stream`, `get_recurring_transactions`, and any `get_transaction_rules` entry
+   naming the source.
+3. Merge. If `success` is false, stop and report the result. Treat an error as unknown rather
+   than failed, and re-read before retrying.
+4. Confirm: `get_merchant(source)` returns not found, and the target's `transaction_count` grew
+   by exactly the source's earlier count. Verified live: transactions keep their ids, dates,
+   amounts, categories, and notes.
 
-1. Collect the transaction ids for the non-canonical variants.
-2. Move one with `update_transaction(transaction_id=..., merchant_name="<canonical>")`
-   and check the returned `merchant.id` matches the canonical record. If it came back
-   with a new id, the spelling was off. Stop and fix it rather than creating a third
-   merchant. This probe is the reason to start with the single-transaction tool: the
-   bulk one reports a count, not which merchant the name landed on.
-3. Move the rest in one request with
-   `bulk_update_transactions(transaction_ids=[...], merchant_name="<canonical>")`, the
-   same bulk endpoint Monarch's web client uses. It attaches to the existing record the
-   same way the single-transaction tool does. The response gives `requested` and
-   `affected`; if they differ, stop and report rather than retrying. Its `dry_run` flag
-   only echoes the planned update back without asking Monarch anything, so it adds
-   nothing to the report the user already confirmed.
-   A large batch can outlast the client's 10-second timeout and come back as
-   `TimeoutError` while Monarch still applies every update. Verified: a 2,574-id batch
-   timed out and all of it landed. Treat a timeout as unknown, not failed: re-read before
-   retrying, and report what the re-read shows.
-4. Confirm with `get_merchant(canonical_id)`: `transaction_count` should have grown by
-   exactly the number moved.
+No merge with a rule or a recurring stream has been run through this tool, so what happens to
+them is unverified. Compare against step 2 and tell the user what you find:
 
-Then tell the user what is left behind, because the merge does not clean it up:
-
-- **The emptied merchant record survives** with `transaction_count: 0`. `can_be_deleted`
-  may read `true` or stay `false`, so do not promise it can be deleted yet. This server
-  exposes no merchant-delete tool; it is removed in Monarch's UI, or left alone, where
-  it is harmless but visible in merchant pickers.
-- **Its recurring stream survives and stays `is_active: true`**, and the merchant's own
-  `has_active_recurring_streams` may or may not flip to `false`. A stale stream can keep
-  the subscription showing twice, which was likely the point of merging. Offer
-  `review_recurring_stream(stream_id=..., review_status="ignored")` to dismiss it, and
-  do not call it without asking, since it is a second write on a different object.
-- **Merging a live subscription can drop it from `get_recurring_transactions`.** When
-  the old record held the listed stream and the canonical record's stream was not
-  listed, the subscription disappeared from that list after the merge, forecast and all,
-  while `get_merchant` still showed both streams. Re-read the list after merging a group
-  with a stream, and say so if the subscription is gone. Check before dismissing the old
-  stream, since it may be the only one Monarch was showing.
-- **Rules keyed to the old spelling still exist** and will re-split future charges. A
-  merchant rule using `eq` only matches that exact name; switching it to `contains` on
-  the distinctive part of the name covers every variant. `update_transaction_rule` is
-  non-destructive: it re-reads the rule and merges your change over its current state,
-  so passing only `merchant_criteria` keeps the existing category and tag actions.
+- **Recurring streams.** Re-read `get_recurring_transactions` and `get_merchant(target)`, and say
+  if a subscription disappeared or now shows twice. If a stale stream remains, offer
+  `review_recurring_stream(stream_id=..., review_status="ignored")`. Do not call it without asking,
+  since it is a second write on a different object.
+- **Rules.** Re-read `get_transaction_rules`. A rule still keyed to the old spelling will re-split
+  future charges. A merchant rule using `eq` only matches that exact name, and switching it to
+  `contains` on the distinctive part of the name covers every variant. `update_transaction_rule`
+  is non-destructive: it re-reads the rule and merges your change over its current state, so
+  passing only `merchant_criteria` keeps the existing category and tag actions.
 
 Report what changed, per group, with the counts you verified. Never report a merge you
 did not confirm with `get_merchant`.
